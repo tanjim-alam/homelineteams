@@ -20,85 +20,7 @@ export default function FeaturedProducts() {
       } catch (err) {
         console.error('Error fetching featured products:', err);
         setError(err.message);
-        // Fallback to sample data with proper structure
-        setProducts([
-          {
-            _id: '1',
-            name: 'Modern Kitchen Curtains',
-            slug: 'modern-kitchen-curtains',
-            description: 'Elegant kitchen curtains with modern design',
-            basePrice: 89.99,
-            mainImages: ['/images/kitchen-curtains.jpg'],
-            variants: [
-              { 
-                price: 89.99, 
-                mrp: 129.99, 
-                discount: 31, 
-                stock: 15,
-                fields: { size: 'Standard', color: 'White' }
-              }
-            ],
-            hasVariants: false,
-            categoryId: 'kitchen-dining'
-          },
-          {
-            _id: '2',
-            name: 'Living Room Blinds',
-            slug: 'living-room-blinds',
-            description: 'Stylish blinds for your living room',
-            basePrice: 149.99,
-            mainImages: ['/images/living-room-blinds.jpg'],
-            variants: [
-              { 
-                price: 149.99, 
-                mrp: 199.99, 
-                discount: 25, 
-                stock: 8,
-                fields: { size: 'Large', color: 'Beige' }
-              }
-            ],
-            hasVariants: false,
-            categoryId: 'living-room'
-          },
-          {
-            _id: '3',
-            name: 'Bedroom Curtains Set',
-            slug: 'bedroom-curtains-set',
-            description: 'Complete bedroom curtains set',
-            basePrice: 129.99,
-            mainImages: ['/images/bedroom-curtains.jpg'],
-            variants: [
-              { 
-                price: 129.99, 
-                mrp: 179.99, 
-                discount: 28, 
-                stock: 12,
-                fields: { size: 'Queen', color: 'Blue' }
-              }
-            ],
-            hasVariants: false,
-            categoryId: 'bedroom'
-          },
-          {
-            _id: '4',
-            name: 'Bathroom Window Treatment',
-            slug: 'bathroom-window-treatment',
-            description: 'Water-resistant bathroom curtains',
-            basePrice: 69.99,
-            mainImages: ['/images/bathroom-curtains.jpg'],
-            variants: [
-              { 
-                price: 69.99, 
-                mrp: 99.99, 
-                discount: 30, 
-                stock: 20,
-                fields: { size: 'Small', color: 'Gray' }
-              }
-            ],
-            hasVariants: false,
-            categoryId: 'bathroom'
-          }
-        ]);
+        // Fallback to sample data with proper structure for new ProductCard
       } finally {
         setLoading(false);
       }
@@ -122,7 +44,7 @@ export default function FeaturedProducts() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[...Array(4)].map((_, i) => (
+            {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="bg-gray-200 h-64 rounded-2xl mb-4"></div>
                 <div className="bg-gray-200 h-6 rounded mb-2"></div>
@@ -153,7 +75,7 @@ export default function FeaturedProducts() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {products.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
@@ -162,7 +84,7 @@ export default function FeaturedProducts() {
         <div className="text-center">
           <Link href="/collections" className="btn-primary group">
             View All Products
-            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+            <ChevronRight className=" group-hover:translate-x-1 transition-transform duration-300" />
           </Link>
         </div>
       </div>

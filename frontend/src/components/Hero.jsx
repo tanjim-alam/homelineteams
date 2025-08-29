@@ -1,158 +1,177 @@
 'use client';
 
-import { ShoppingBag, Star, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
+import { ShoppingBag, Star, ArrowRight, CheckCircle, Sparkles, TrendingUp, Zap, Shield } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
 const Hero = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Background images for the sliding carousel
+  const backgroundImages = [
+    '/hero-bg-1.jpg', // Curtains and drapes
+    '/hero-bg-2.jpg', // Wallpapers and patterns
+    '/hero-bg-3.jpg', // Cushions and upholstery
+  ];
+
+  // Auto-slide background images
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % backgroundImages.length
+      );
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [backgroundImages.length]);
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-primary-50 pt-2">
-      {/* Background Elements */}
-      <div className="absolute inset-0">
-        {/* Animated Background Shapes */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-primary-100 to-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float" style={{ animationDelay: '4s' }}></div>
-        
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 container-custom">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          
-          {/* Left Section */}
-          <div className="text-center lg:text-left space-y-8">
-            {/* Trust Badge */}
-            <div className="inline-flex items-center gap-3 bg-glass px-6 py-3 rounded-full shadow-lg">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <span className="text-sm font-semibold text-gray-700">Trusted by 50,000+ Happy Customers</span>
-              </div>
-              <Sparkles className="w-4 h-4 text-primary-500" />
+    <section className="relative bg-white">
+      {/* Main Hero Banner with Sliding Background */}
+      <div className="relative min-h-screen flex items-center overflow-hidden">
+        {/* Sliding Background Images */}
+        <div className="absolute inset-0">
+          {backgroundImages.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <div className="absolute inset-0 bg-black/40 z-10" /> {/* Dark overlay */}
+              <Image
+                src={image}
+                alt={`Hero background ${index + 1}`}
+                fill
+                className="object-cover"
+                priority={index === 0}
+              />
             </div>
+          ))}
+        </div>
+
+        {/* Content Overlay */}
+        <div className="relative z-20 container-custom py-4">
+          <div className="flex justify-between gap-12 items-center">
             
-            {/* Main Heading */}
-            <div className="space-y-6">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                <span className="text-gray-900">Mindful,</span>
-                
-                <span className="text-gradient">
-                  Colorful
-                </span>
-                <span className="text-gray-900"> & </span>
-                <span className="text-gradient">
-                  Playful
-                </span>
-               
-                <span className="text-gray-900"> Home Furnishings</span>
-              </h1>
+            {/* Left Content */}
+            <div className="space-y-8 text-white">
+              {/* Trust Badge */}
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-full shadow-lg">
+                <div className="flex items-center gap-1">
+                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                  <span className="text-sm font-medium text-white">4.8/5 Rating</span>
+                </div>
+                <span className="text-xs text-white/70">•</span>
+                <span className="text-sm text-white/90">50,000+ Happy Customers</span>
+              </div>
               
-              <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Transform your home with thoughtfully made products for Indian homes. From modern wallpapers to colorful cushions, contemporary curtains to ultra-chic upholstery.
-              </p>
+              {/* Main Heading */}
+              <div className="space-y-6">
+                <h1 className="text-4xl lg:text-6xl font-bold leading-tight text-white">
+                  Transform Your Home with
+                  <span className="block text-yellow-300">Premium Furnishings</span>
+                </h1>
+                
+                {/* <p className="text-lg lg:text-xl text-white/90 leading-relaxed max-w-xl">
+                  Discover 2000+ designs, 1200+ colors, and customizable options for curtains, wallpapers, cushions, and more. Made thoughtfully for Indian homes.
+                </p> */}
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/collections">
+                  <button className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-lg transition-all duration-300 group flex items-center gap-2 shadow-lg">
+                    <span>Shop Now</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                  </button>
+                </Link>
+                <Link href="/collections/curtains">
+                  <button className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 text-lg font-semibold rounded-lg transition-all duration-300 group flex items-center gap-2 backdrop-blur-sm">
+                    <span>View Curtains</span>
+                  </button>
+                </Link>
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="flex flex-wrap gap-4 pt-4">
+                <div className="flex items-center gap-2 text-sm text-white/90">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span>Free Shipping</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-white/90">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span>Easy Returns</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-white/90">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span>24/7 Support</span>
+                </div>
+              </div>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/collections/curtains">
-                <button className="btn-primary group flex items-center gap-2">
-                  <span>Shop Curtains</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </button>
-              </Link>
-              <Link href="/collections">
-                <button className="btn-secondary group flex items-center gap-2">
-                  <ShoppingBag className="w-5 h-5" /> 
-                  <span>View All Collections</span>
-                </button>
-              </Link>
-            </div>
-
-            
-
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-6 pt-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600 bg-glass px-4 py-2 rounded-full">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Free Shipping</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600 bg-glass px-4 py-2 rounded-full">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Easy Returns</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600 bg-glass px-4 py-2 rounded-full">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>24/7 Support</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Section (Image) */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="relative group">
-              {/* Main Card */}
-              <div className="relative bg-white rounded-3xl shadow-2xl p-6 transform group-hover:scale-105 transition-all duration-500">
-                <div className="w-full max-w-lg h-96 bg-gradient-to-br from-primary-100 via-pink-100 to-purple-100 rounded-2xl flex items-center justify-center relative overflow-hidden">
-                  {/* Floating Elements */}
-                  <div className="absolute top-4 right-4 w-20 h-20 bg-white/20 rounded-full backdrop-blur-sm"></div>
-                  <div className="absolute bottom-4 left-4 w-16 h-16 bg-white/20 rounded-full backdrop-blur-sm"></div>
-                  
+            {/* Right Hero Image */}
+            <div className="relative">
+              <div className="relative w-full max-w-md  bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-4 transform hover:scale-105 transition-all duration-500">
+                <div className="w-full max-w-md h-64 bg-gradient-to-br from-primary-100 via-pink-100 to-purple-100 rounded-lg flex items-center justify-center relative overflow-hidden">
+                  {/* Product Showcase */}
                   <div className="text-center z-10">
-                    <div className="w-24 h-24 bg-gradient-to-br from-primary-200 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <ShoppingBag className="w-12 h-12 text-primary-600" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary-200 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <ShoppingBag className="w-10 h-10 text-primary-600" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-700 mb-2">Beautiful Home Interior</h3>
-                    <p className="text-gray-500 text-sm">Premium furnishings for your home</p>
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">Premium Home Furnishings</h3>
+                    <p className="text-gray-600 text-sm">Transform your space with style</p>
                   </div>
+                  
+                  {/* Floating Elements */}
+                  <div className="absolute top-4 right-4 w-12 h-12 bg-white/30 rounded-full backdrop-blur-sm"></div>
+                  <div className="absolute bottom-4 left-4 w-8 h-8 bg-white/30 rounded-full backdrop-blur-sm"></div>
                 </div>
                 
-                {/* Floating Card */}
-                <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl p-4 border border-gray-100 transform group-hover:scale-110 transition-transform duration-500">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-pink-100 rounded-full flex items-center justify-center">
-                      <Star className="w-6 h-6 text-primary-600 fill-current" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-gray-900">Premium Quality</div>
-                      <div className="text-xs text-gray-600">Handcrafted with care</div>
-                    </div>
+                {/* Stats Cards */}
+                <div className="grid grid-cols-3 gap-3 mt-4">
+                  <div className="text-center p-2 bg-gray-50 rounded-lg">
+                    <div className="text-sm font-bold text-primary-600">2000+</div>
+                    <div className="text-xs text-gray-600">Designs</div>
+                  </div>
+                  <div className="text-center p-2 bg-gray-50 rounded-lg">
+                    <div className="text-sm font-bold text-blue-600">1200+</div>
+                    <div className="text-xs text-gray-600">Colors</div>
+                  </div>
+                  <div className="text-center p-2 bg-gray-50 rounded-lg">
+                    <div className="text-sm font-bold text-green-600">100%</div>
+                    <div className="text-xs text-gray-600">Customizable</div>
                   </div>
                 </div>
-                {/* Features Grid */}
-            <div className="grid grid-cols-3 gap-8 pt-8">
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-2xl font-bold text-primary-600">2000+</span>
-                </div>
-                <div className="text-sm font-medium text-gray-600">Design Options</div>
-              </div>
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-2xl font-bold text-blue-600">1200+</span>
-                </div>
-                <div className="text-sm font-medium text-gray-600">Color Variants</div>
-              </div>
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-2xl font-bold text-green-600">100%</span>
-                </div>
-                <div className="text-sm font-medium text-gray-600">Customizable</div>
               </div>
             </div>
-              </div>
-            </div>
-            
+          </div>
+        </div>
+
+        {/* Background Image Navigation Dots */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-3">
+          {backgroundImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImageIndex(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentImageIndex 
+                  ? 'bg-white scale-125' 
+                  : 'bg-white/50 hover:bg-white/75'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 right-8 z-30">
+          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white rounded-full mt-2 animate-bounce-gentle" />
           </div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <div className="w-6 h-10 border-2 border-gray-300 rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-primary-600 rounded-full mt-2 animate-bounce-gentle" />
-        </div>
-      </div>
     </section>
   );
 };

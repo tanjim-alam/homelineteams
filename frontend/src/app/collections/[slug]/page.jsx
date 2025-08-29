@@ -219,7 +219,24 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumb */}
+
+      {/* Category Header with Background Image */}
+      <div className="relative bg-white overflow-hidden h-[60vh]">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          {category?.image ? (
+            <Image
+              src={category.image}
+              alt={category.name}
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary-100 via-pink-100 to-purple-100"></div>
+          )}
+          {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="container-custom py-4">
           <nav className="flex items-center space-x-2 text-sm text-gray-500">
@@ -231,31 +248,73 @@ export default function CategoryPage() {
           </nav>
         </div>
       </div>
-
-      {/* Category Header */}
-      <div className="bg-white">
-        <div className="container-custom py-12">
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/50"></div>
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-900/30 via-transparent to-purple-900/30"></div>
+        </div>
+        
+        {/* Floating decorative elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-primary-100/20 to-pink-100/20 rounded-full mix-blend-overlay filter blur-3xl opacity-60"></div>
+          <div className="absolute bottom- right-10 w-72 h-72 bg-gradient-to-r from-blue-100/20 to-purple-100/20 rounded-full mix-blend-overlay filter blur-3xl opacity-60"></div>
+        </div>
+        
+        <div className="relative z-10 container-custom">
           <div className="text-center">
-            {category?.image && (
-              <div className="w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden">
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  width={96}
-                  height={96}
-                  className="object-cover"
-                />
-              </div>
-            )}
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            
+            
+            {/* Category Name */}
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-3 drop-shadow-lg pt-8">
               {category?.name}
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {category?.description || 'Explore our amazing collection of products'}
+            
+            {/* Category Description */}
+            <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto mb-3 leading-relaxed drop-shadow-md">
+              {category?.description || `Explore our amazing collection of ${category?.name?.toLowerCase()} products`}
             </p>
-            <p className="text-gray-500 mt-4">
-              {products.length} product{products.length !== 1 ? 's' : ''} available
-            </p>
+            
+            {/* Product Count and Stats */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-white/90">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <span className="text-lg font-semibold">
+                  {products.length} product{products.length !== 1 ? 's' : ''} available
+                </span>
+              </div>
+              
+              {filterOptions?.priceRange && (
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+                  <span className="text-lg">
+                    Price: ₹{filterOptions.priceRange.min} - ₹{filterOptions.priceRange.max}
+                  </span>
+                </div>
+              )}
+              
+              {filterOptions?.brands && filterOptions.brands.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
+                  <span className="text-lg">
+                    {filterOptions.brands.length} brand{filterOptions.brands.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            {/* Category Features/Tags */}
+            {category?.customFields && category.customFields.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-3 mt-8">
+                {category.customFields.slice(0, 6).map((field, index) => (
+                  <span 
+                    key={index}
+                    className="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm font-medium border border-white/30"
+                  >
+                    {field.name}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

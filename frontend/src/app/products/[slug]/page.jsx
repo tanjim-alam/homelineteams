@@ -259,7 +259,7 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              <p className="text-gray-600">{product.description || 'Premium quality product for your home.'}</p>
+              {/* <p className="text-gray-600">{product.description || 'Premium quality product for your home.'}</p> */}
 
               {/* Dynamic Variant Selection */}
               {product.hasVariants && Object.keys(getAvailableOptions()).length > 0 && (
@@ -267,31 +267,97 @@ export default function ProductDetailPage() {
                   <h3 className="text-lg font-semibold text-gray-900">Select Options</h3>
                   
                   {Object.keys(getAvailableOptions()).map(fieldSlug => {
-                    const fieldInfo = getFieldDisplayInfo(fieldSlug);
-                    const options = getAvailableOptions()[fieldSlug];
-                    const selectedValue = selectedOptions[fieldSlug];
-                    
-                    return (
+                                         const fieldInfo = getFieldDisplayInfo(fieldSlug);
+                     const options = getAvailableOptions()[fieldSlug];
+                     const selectedValue = selectedOptions[fieldSlug];
+                     
+                     // Check if this is a color field (by name or slug)
+                     const isColorField = fieldSlug.toLowerCase().includes('color') || 
+                                        fieldInfo.name.toLowerCase().includes('color') ||
+                                        fieldSlug.toLowerCase().includes('colour') ||
+                                        fieldInfo.name.toLowerCase().includes('colour');
+                     
+                     return (
                       <div key={fieldSlug}>
                         <h4 className="font-medium text-gray-900 mb-3">
                           Select {fieldInfo.name}
                           {fieldInfo.unit && <span className="text-gray-500 ml-1">({fieldInfo.unit})</span>}
                         </h4>
-                        <div className="flex flex-wrap gap-3">
-                          {options.map(option => (
-                            <button
-                              key={option}
-                              onClick={() => handleOptionSelect(fieldSlug, option)}
-                              className={`px-4 py-2 border-2 rounded-lg transition-all duration-200 ${
-                                selectedValue === option
-                                  ? 'border-primary-600 bg-primary-50 text-primary-700'
-                                  : 'border-gray-200 hover:border-primary-300'
-                              }`}
-                            >
-                              {option}
-                            </button>
-                          ))}
-                        </div>
+                                                 {isColorField ? (
+                           // Color variant selector with swatches
+                           <div className="flex flex-wrap gap-3">
+                             {options.map(option => {
+                               // Try to extract hex code from option (format: "Color Name (#HEXCODE)")
+                               const colorMatch = option.match(/^(.+?)\s*\(#([A-Fa-f0-9]{6})\)$/);
+                               const colorName = colorMatch ? colorMatch[1] : option;
+                               const hexCode = colorMatch ? colorMatch[2] : null;
+                               
+                               const isSelected = selectedValue === option;
+                               
+                               return (
+                                 <button
+                                   key={option}
+                                   onClick={() => handleOptionSelect(fieldSlug, option)}
+                                   className={`relative group transition-all duration-200 ${
+                                     isSelected
+                                       ? ' ring-primary-600 ring-offset-2'
+                                       : 'hover:scale-105'
+                                   }`}
+                                   title={`${colorName}${hexCode ? ` - #${hexCode}` : ''}`}
+                                 >
+                                   {/* Color Swatch */}
+                                   <div className="w-10 h-10 rounded-full border-gray-200 overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200">
+                                     {hexCode ? (
+                                       <div 
+                                         className="w-full h-full"
+                                         style={{ backgroundColor: `#${hexCode}` }}
+                                       />
+                                     ) : (
+                                       <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                                         <span className="text-xs text-gray-600 text-center px-1">
+                                           {colorName.length > 8 ? colorName.substring(0, 8) + '...' : colorName}
+                                         </span>
+                                       </div>
+                                     )}
+                                   </div>
+                                   
+                                   {/* Color Name */}
+                                   <div className={`mt-3 text-center text-sm font-medium ${
+                                     isSelected ? 'text-primary-700' : 'text-gray-700'
+                                   }`}>
+                                     {colorName.length > 12 ? colorName.substring(0, 12) + '...' : colorName}
+                                   </div>
+                                   
+                                   {/* Selection Indicator */}
+                                   {isSelected && (
+                                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                       </svg>
+                                     </div>
+                                   )}
+                                 </button>
+                               );
+                             })}
+                           </div>
+                         ) : (
+                           // Regular variant selector for non-color fields
+                           <div className="flex flex-wrap gap-3">
+                             {options.map(option => (
+                               <button
+                                 key={option}
+                                 onClick={() => handleOptionSelect(fieldSlug, option)}
+                                 className={`px-4 py-2 border-2 rounded-lg transition-all duration-200 ${
+                                   selectedValue === option
+                                     ? 'border-primary-600 bg-primary-50 text-primary-700'
+                                     : 'border-gray-200 hover:border-primary-300'
+                                 }`}
+                               >
+                                 {option}
+                               </button>
+                             ))}
+                           </div>
+                         )}
                       </div>
                     );
                   })}
@@ -305,17 +371,39 @@ export default function ProductDetailPage() {
                           Stock: {selectedVariant.stock || 0}
                         </span>
                       </div>
-                      <div className="text-sm text-gray-600 space-y-1">
-                        {selectedVariant.fields && Object.entries(selectedVariant.fields).map(([key, value]) => {
-                          const fieldInfo = getFieldDisplayInfo(key);
-                          return (
-                            <div key={key} className="flex justify-between">
-                              <span className="font-medium">{fieldInfo.name}:</span>
-                              <span>{value} {fieldInfo.unit}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                                             <div className="text-sm text-gray-600 space-y-3">
+                         {selectedVariant.fields && Object.entries(selectedVariant.fields).map(([key, value]) => {
+                           const fieldInfo = getFieldDisplayInfo(key);
+                           const isColorField = key.toLowerCase().includes('color') || 
+                                              fieldInfo.name.toLowerCase().includes('color') ||
+                                              key.toLowerCase().includes('colour') ||
+                                              fieldInfo.name.toLowerCase().includes('colour');
+                           
+                           // Try to extract hex code from value (format: "Color Name (#HEXCODE)")
+                           const colorMatch = value.match(/^(.+?)\s*\(#([A-Fa-f0-9]{6})\)$/);
+                           const colorName = colorMatch ? colorMatch[1] : value;
+                           const hexCode = colorMatch ? colorMatch[2] : null;
+                           
+                           return (
+                             <div key={key} className="flex items-center justify-between">
+                               <span className="font-medium">{fieldInfo.name}:</span>
+                               <div className="flex items-center gap-2">
+                                 {isColorField && hexCode && (
+                                   <div 
+                                     className="w-6 h-6 rounded-full border-2 border-gray-300 shadow-sm"
+                                     style={{ backgroundColor: `#${hexCode}` }}
+                                     title={`${colorName} (#${hexCode})`}
+                                   />
+                                 )}
+                                 <span>
+                                   {colorName} {fieldInfo.unit}
+                                   {hexCode && <span className="text-gray-500 ml-1">#{hexCode}</span>}
+                                 </span>
+                               </div>
+                             </div>
+                           );
+                         })}
+                       </div>
                     </div>
                   )}
                 </div>
@@ -332,7 +420,7 @@ export default function ProductDetailPage() {
                     >
                       <Minus className="w-5 h-5 text-gray-600" />
                     </button>
-                    <span className="w-16 text-center font-bold text-lg">{quantity}</span>
+                    <span className="w-16 text-center font-bold text-lg text-gray-600">{quantity}</span>
                     <button
                       onClick={() => handleQuantityChange(quantity + 1)}
                       className="w-12 h-12 flex items-center justify-center hover:bg-gray-50 transition-colors"
@@ -362,11 +450,11 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={() => setIsWishlisted(!isWishlisted)}
-                  className={`p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-lg ${
+                  className={`p-4 rounded-2xl border-2 transition-all duration-300 text-red-600 hover:shadow-lg ${
                     isWishlisted ? 'border-red-500 bg-red-50 text-red-600' : 'border-gray-300 hover:border-primary-300 hover:text-primary-600'
                   }`}
                 >
-                  <Heart className={`w-6 h-6 ${isWishlisted ? 'fill-current' : ''}`} />
+                  <Heart className={`w-6 h-6 ${isWishlisted ? 'fill-current ' : ''}`} />
                 </button>
               </div>
             </div>
@@ -381,7 +469,7 @@ export default function ProductDetailPage() {
           <div className="flex border-b border-gray-200 mb-8">
             {[
               { id: 'description', label: 'Description' },
-              { id: 'specifications', label: 'Specifications' },
+              // { id: 'specifications', label: 'Specifications' },
               { id: 'custom-fields', label: 'Product Details' },
               { id: 'reviews', label: 'Reviews' },
               { id: 'shipping', label: 'Shipping & Returns' }
