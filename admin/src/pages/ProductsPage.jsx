@@ -19,11 +19,13 @@ export default function ProductsPage() {
     name: '',
     slug: '',
     basePrice: '',
+    mrp: '',
+    discount: '',
     description: '',
     mainImages: [],
     hasVariants: false,
     variants: [],
-    variantOptions: {}, // New: Store available options for each variant field
+    variantOptions: {}, // Store available options for each variant field
     dynamicFields: {},
     metaData: {
       title: '',
@@ -34,6 +36,7 @@ export default function ProductsPage() {
   });
 
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [existingImages, setExistingImages] = useState([]);
 
   const [variantForm, setVariantForm] = useState({
     fields: {},
@@ -206,6 +209,8 @@ export default function ProductsPage() {
       name: '',
       slug: '',
       basePrice: '',
+      mrp: '',
+      discount: '',
       description: '',
       mainImages: [],
       hasVariants: false,
@@ -221,6 +226,7 @@ export default function ProductsPage() {
     });
     setEditingProduct(null);
     setSelectedCategory(null);
+    setExistingImages([]);
   };
 
   const generateSlug = (name) => {
@@ -238,24 +244,58 @@ export default function ProductsPage() {
     e.preventDefault();
     setError('');
 
+    // Validation
+    if (form.basePrice && parseFloat(form.basePrice) <= 0) {
+      setError('Base price must be greater than 0');
+      return;
+    }
+
+    if (form.mrp && parseFloat(form.mrp) < parseFloat(form.basePrice)) {
+      setError('MRP cannot be less than base price');
+      return;
+    }
+
+    if (form.discount && (parseFloat(form.discount) < 0 || parseFloat(form.discount) > 100)) {
+      setError('Discount percentage must be between 0 and 100');
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append('categoryId', form.categoryId);
       formData.append('name', form.name);
       formData.append('slug', form.slug);
       formData.append('basePrice', form.basePrice);
+      formData.append('mrp', form.mrp);
+      formData.append('discount', form.discount);
       formData.append('description', form.description);
+
+      // Debug logging
+      console.log('=== FORM SUBMISSION DEBUG ===');
+      console.log('Form values:', {
+        mrp: form.mrp,
+        discount: form.discount,
+        basePrice: form.basePrice,
+        categoryId: form.categoryId,
+        name: form.name
+      });
+      console.log('FormData entries:', Array.from(formData.entries()));
       formData.append('hasVariants', form.hasVariants);
       formData.append('variants', JSON.stringify(form.variants));
       formData.append('variantOptions', JSON.stringify(form.variantOptions));
       formData.append('dynamicFields', JSON.stringify(form.dynamicFields));
       formData.append('metaData', JSON.stringify(form.metaData));
 
-      if (form.mainImages && form.mainImages.length > 0) {
-        for (let i = 0; i < form.mainImages.length; i++) {
-          formData.append('images', form.mainImages[i]);
+              // Handle images - only append if new images are selected
+        if (form.mainImages && form.mainImages.length > 0) {
+          // Check if these are actual File objects (new uploads) or existing image URLs
+          const newImages = form.mainImages.filter(img => img instanceof File);
+          if (newImages.length > 0) {
+            for (let i = 0; i < newImages.length; i++) {
+              formData.append('images', newImages[i]);
+            }
+          }
         }
-      }
 
       if (editingProduct) {
         setUpdateLoading(true);
@@ -287,8 +327,10 @@ export default function ProductsPage() {
       name: product.name,
       slug: product.slug,
       basePrice: product.basePrice || product.price || '',
+      mrp: product.mrp || '',
+      discount: product.discount || '',
       description: product.description || '',
-      mainImages: product.mainImages || [],
+      mainImages: [], // Start with empty array for new uploads
       hasVariants: product.hasVariants || false,
       variants: product.variants || [],
       variantOptions: product.variantOptions || {},
@@ -300,6 +342,9 @@ export default function ProductsPage() {
         ogImage: null
       }
     });
+
+    // Store existing images separately
+    setExistingImages(product.mainImages || []);
 
     if (product.categoryId) {
       fetchCategoryDetails(product.categoryId);
@@ -478,9 +523,8 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Products Management</h1>
         <button
           onClick={() => setShowForm(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -576,14 +620,60 @@ export default function ProductsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Base Price *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Base Price (Starting Price) *</label>
                 <input
                   type="number"
                   value={form.basePrice}
                   onChange={(e) => setForm({ ...form, basePrice: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
+                  placeholder="Starting price for variants"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  This is the base price. Individual variant prices will be set below.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">MRP (Maximum Retail Price)</label>
+                <input
+                  type="number"
+                  value={form.mrp}
+                  onChange={(e) => setForm({ ...form, mrp: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter MRP if different from base price"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Optional: Set MRP for products without variants or as default for all variants.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Discount Percentage (%)</label>
+                <input
+                  type="number"
+                  value={form.discount}
+                  onChange={(e) => setForm({ ...form, discount: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter discount percentage (0-100)"
+                  min="0"
+                  max="100"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Optional: Set discount for products without variants or as default for all variants.
+                </p>
+              </div>
+
+              {/* Pricing Information */}
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 className="text-sm font-medium text-blue-900 mb-2">💡 Pricing Strategy</h4>
+                <div className="text-xs text-blue-800 space-y-1">
+                  <p><strong>Products without variants:</strong> Use main product MRP and discount</p>
+                  <p><strong>Products with variants:</strong> Set individual pricing for each variant combination</p>
+                  <p><strong>Base Price:</strong> Starting price for variants or main product price</p>
+                  <p><strong>MRP:</strong> Maximum Retail Price (optional)</p>
+                  <p><strong>Discount:</strong> Percentage off MRP (optional)</p>
+                </div>
               </div>
             </div>
 
@@ -600,7 +690,9 @@ export default function ProductsPage() {
 
             {/* Product Images Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Product Images *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Product Images {!editingProduct && '*'}
+              </label>
               <input
                 key={editingProduct ? `edit-${editingProduct._id}` : 'new-product'}
                 type="file"
@@ -611,9 +703,30 @@ export default function ProductsPage() {
                   setForm({ ...form, mainImages: files });
                 }}
                 className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
+                required={!editingProduct}
               />
-              <p className="text-xs text-gray-500 mt-1">Select multiple images for the product gallery</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {editingProduct ? 
+                  'Select new images to replace existing ones (optional)' : 
+                  'Select multiple images for the product gallery'
+                }
+              </p>
+              {editingProduct && existingImages && existingImages.length > 0 && (
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-2">Current images:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {existingImages.map((img, index) => (
+                      <div key={index} className="relative">
+                        <img 
+                          src={img} 
+                          alt={`Current image ${index + 1}`} 
+                          className="w-16 h-16 object-cover rounded border"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Custom Fields based on Category */}
@@ -651,8 +764,17 @@ export default function ProductsPage() {
               </label>
             </div>
 
+            {/* Category Selection Warning */}
+            {form.hasVariants && !selectedCategory && (
+              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p className="text-sm text-yellow-800">
+                  ⚠️ Please select a category first to configure variant fields.
+                </p>
+              </div>
+            )}
+
             {/* Variant Fields Info */}
-            {form.hasVariants && selectedCategory && selectedCategory.variantFields && (
+            {form.hasVariants && selectedCategory?.variantFields && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900">Variant Fields</h3>
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -789,7 +911,7 @@ export default function ProductsPage() {
             )}
 
             {/* Bulk Variant Creation */}
-            {form.hasVariants && selectedCategory && selectedCategory.variantFields && Object.keys(form.variantOptions).length > 0 && (
+            {form.hasVariants && selectedCategory?.variantFields && Object.keys(form.variantOptions).length > 0 && (
               <div className="border-t pt-6">
                 <h4 className="text-md font-semibold text-gray-900 mb-4">Bulk Variant Creation</h4>
                 <p className="text-sm text-gray-600 mb-4">
@@ -800,6 +922,8 @@ export default function ProductsPage() {
                   <div className="text-sm text-yellow-800">
                     <p className="font-medium mb-2">Available combinations:</p>
                     {(() => {
+                      if (!selectedCategory?.variantFields) return null;
+                      
                       const fields = selectedCategory.variantFields;
                       const options = form.variantOptions;
                       const combinations = fields.reduce((acc, field) => {
@@ -827,32 +951,46 @@ export default function ProductsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <input
-                    type="number"
-                    value={variantForm.price}
-                    onChange={(e) => setVariantForm({ ...variantForm, price: e.target.value })}
-                    placeholder="Base Price"
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <input
-                    type="number"
-                    value={variantForm.mrp}
-                    onChange={(e) => setVariantForm({ ...variantForm, mrp: e.target.value })}
-                    placeholder="Base MRP"
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <input
-                    type="number"
-                    value={variantForm.stock}
-                    onChange={(e) => setVariantForm({ ...variantForm, stock: e.target.value })}
-                    placeholder="Base Stock"
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Base Price for All Variants</label>
+                    <input
+                      type="number"
+                      value={variantForm.price}
+                      onChange={(e) => setVariantForm({ ...variantForm, price: e.target.value })}
+                      placeholder="Base Price"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Base MRP for All Variants</label>
+                    <input
+                      type="number"
+                      value={variantForm.mrp}
+                      onChange={(e) => setVariantForm({ ...variantForm, mrp: e.target.value })}
+                      placeholder="Base MRP"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Base Stock for All Variants</label>
+                    <input
+                      type="number"
+                      value={variantForm.stock}
+                      onChange={(e) => setVariantForm({ ...variantForm, stock: e.target.value })}
+                      placeholder="Base Stock"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => {
+                    if (!selectedCategory?.variantFields) {
+                      setError('Please select a category with variant fields first');
+                      return;
+                    }
+                    
                     const fields = selectedCategory.variantFields;
                     const options = form.variantOptions;
                     
@@ -907,7 +1045,7 @@ export default function ProductsPage() {
                   }}
                   className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
                 >
-                  Create All Variants
+                  Generate All Variants
                 </button>
               </div>
             )}
@@ -918,7 +1056,7 @@ export default function ProductsPage() {
                 <h4 className="text-md font-semibold text-gray-900 mb-4">Add Variant</h4>
                 
                 {/* Dynamic Variant Fields */}
-                {selectedCategory && selectedCategory.variantFields && (
+                {selectedCategory?.variantFields && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                     {selectedCategory.variantFields.map((field, index) => (
                       <div key={index}>
@@ -956,44 +1094,7 @@ export default function ProductsPage() {
                   </div>
                 )}
 
-                {/* Variant Fields Inputs */}
-                {selectedCategory && selectedCategory.variantFields && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                    {selectedCategory.variantFields.map((field, index) => (
-                      <div key={index}>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {field.name}
-                          {field.required && <span className="text-red-500">*</span>}
-                        </label>
-                        
-                        {field.type === 'dropdown' && field.options ? (
-                          <select
-                            value={variantForm.fields[field.slug] || ''}
-                            onChange={(e) => updateVariantField(field.slug, e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required={field.required}
-                          >
-                            <option value="">Select {field.name}</option>
-                            {field.options.map((option, optIndex) => (
-                              <option key={optIndex} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            type={field.type === 'number' ? 'number' : 'text'}
-                            value={variantForm.fields[field.slug] || ''}
-                            onChange={(e) => updateVariantField(field.slug, e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder={`Enter ${field.name}${field.unit ? ` (${field.unit})` : ''}`}
-                            required={field.required}
-                          />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+
 
                 {/* Basic Variant Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
@@ -1030,8 +1131,113 @@ export default function ProductsPage() {
               </div>
             )}
 
+            {/* Individual Variant Pricing Management */}
+            {form.hasVariants && form.variants && form.variants.length > 0 && selectedCategory?.variantFields && (
+              <div className="border-t pt-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Variant Pricing Management</h4>
+                <p className="text-sm text-gray-600 mb-4">
+                  Set individual prices, MRP, and stock for each variant combination. Each variant can have its own pricing.
+                </p>
+                
+                <div className="space-y-4">
+                  {form.variants.map((variant, index) => (
+                    <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Variant Details */}
+                        <div className="col-span-1 md:col-span-2">
+                          <h6 className="font-medium text-gray-900 mb-2">Variant {index + 1}</h6>
+                          <div className="space-y-1">
+                            {Object.entries(variant.fields).map(([fieldSlug, value]) => {
+                              const field = selectedCategory?.variantFields?.find(f => f.slug === fieldSlug);
+                              return (
+                                <div key={fieldSlug} className="text-sm">
+                                  <span className="text-gray-600">{field?.name || fieldSlug}:</span>
+                                  <span className="ml-2 font-medium">{value}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        
+                        {/* Price Input */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                          <input
+                            type="number"
+                            value={variant.price || ''}
+                            onChange={(e) => {
+                              const newVariants = [...form.variants];
+                              newVariants[index].price = e.target.value;
+                              setForm({ ...form, variants: newVariants });
+                            }}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Price"
+                          />
+                        </div>
+                        
+                        {/* MRP Input */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">MRP</label>
+                          <input
+                            type="number"
+                            value={variant.mrp || ''}
+                            onChange={(e) => {
+                              const newVariants = [...form.variants];
+                              newVariants[index].mrp = e.target.value;
+                              setForm({ ...form, variants: newVariants });
+                            }}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="MRP"
+                          />
+                        </div>
+                        
+                        {/* Stock Input */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+                          <input
+                            type="number"
+                            value={variant.stock || ''}
+                            onChange={(e) => {
+                              const newVariants = [...form.variants];
+                              newVariants[index].stock = e.target.value;
+                              setForm({ ...form, variants: newVariants });
+                            }}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Stock"
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Calculated Discount */}
+                      {variant.mrp && variant.price && parseFloat(variant.mrp) > parseFloat(variant.price) && (
+                        <div className="mt-3 p-2 bg-green-50 rounded border border-green-200">
+                          <span className="text-sm text-green-800">
+                            Auto-calculated discount: {(((parseFloat(variant.mrp) - parseFloat(variant.price)) / parseFloat(variant.mrp)) * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Remove Variant Button */}
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newVariants = form.variants.filter((_, i) => i !== index);
+                            setForm({ ...form, variants: newVariants });
+                          }}
+                          className="px-3 py-1 text-red-600 hover:text-red-800 text-sm border border-red-300 rounded hover:bg-red-50"
+                        >
+                          Remove Variant
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Variants List */}
-            {form.variants.length > 0 && (
+            {form.hasVariants && form.variants.length > 0 && (
               <div>
                 <h4 className="text-md font-semibold text-gray-900 mb-4">Current Variants</h4>
                 <div className="space-y-2">
@@ -1121,7 +1327,7 @@ export default function ProductsPage() {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price & Offers</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variants</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -1149,9 +1355,22 @@ export default function ProductsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {categories.find(c => c._id === product.categoryId)?.name || 'Unknown'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{product.basePrice || product.price || 0}
-                    </td>
+                                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="space-y-1">
+                          <div className="font-medium">₹{product.basePrice || product.price || 0}</div>
+                          {product.mrp && product.mrp > (product.basePrice || product.price) && (
+                            <div className="text-xs text-gray-500 line-through">MRP: ₹{product.mrp}</div>
+                          )}
+                          {product.discount && product.discount > 0 && (
+                            <div className="text-xs text-green-600 font-medium">{product.discount}% OFF</div>
+                          )}
+                          {product.hasVariants && product.variants && product.variants.length > 0 && (
+                            <div className="text-xs text-blue-600">
+                              {product.variants.length} variants with individual pricing
+                            </div>
+                          )}
+                        </div>
+                      </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {product.hasVariants ? (
                         <div className="flex items-center">

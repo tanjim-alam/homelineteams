@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Star, ShoppingCart, Heart } from 'lucide-react';
+import { ChevronRight, Star, ShoppingCart, Heart, ArrowRight } from 'lucide-react';
 import ProductCard from './ProductCard';
 import api from '@/services/api';
 
@@ -16,7 +16,8 @@ export default function FeaturedProducts() {
       try {
         setLoading(true);
         const data = await api.getFeaturedProducts(8);
-        setProducts(data);
+        console.log('Featured products fetched:', { count: data?.length, data });
+        setProducts(data || []);
       } catch (err) {
         console.error('Error fetching featured products:', err);
         setError(err.message);
@@ -75,16 +76,31 @@ export default function FeaturedProducts() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
-          ))}
-        </div>
+        {products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No featured products available at the moment.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            {products.slice(0, 8).map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        )}
+        
+        {/* Debug info - remove this in production */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="text-center text-xs text-gray-400 mb-4">
+            Showing {Math.min(products.length, 8)} of {products.length} products
+          </div>
+        )}
         
         <div className="text-center">
-          <Link href="/collections" className="btn-primary group">
-            View All Products
-            <ChevronRight className=" group-hover:translate-x-1 transition-transform duration-300" />
+          <Link href="#">
+            <button className="btn-primary group flex items-center gap-2 mx-auto">
+              <span>View All Products</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </button>
           </Link>
         </div>
       </div>

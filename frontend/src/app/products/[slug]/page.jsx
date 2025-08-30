@@ -347,7 +347,7 @@ export default function ProductDetailPage() {
                                <button
                                  key={option}
                                  onClick={() => handleOptionSelect(fieldSlug, option)}
-                                 className={`px-4 py-2 border-2 rounded-lg transition-all duration-200 ${
+                                 className={`px-4 py-2 border-2 rounded-lg text-gray-600 transition-all duration-200 ${
                                    selectedValue === option
                                      ? 'border-primary-600 bg-primary-50 text-primary-700'
                                      : 'border-gray-200 hover:border-primary-300'

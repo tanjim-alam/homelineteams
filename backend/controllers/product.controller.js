@@ -26,12 +26,16 @@ exports.createProduct = async (req, res, next) => {
             name,
             slug,
             basePrice,
+            mrp,
+            discount,
             description,
             metaData,
             variants,
             variantOptions,
             hasVariants
         } = req.body;
+        
+        console.log('Extracted values:', { mrp, discount, basePrice });
 
         const parsedMeta = typeof metaData === 'string' ? JSON.parse(metaData) : metaData;
         const parsedVariants = typeof variants === 'string' ? JSON.parse(variants) : variants;
@@ -71,11 +75,39 @@ exports.createProduct = async (req, res, next) => {
             }
         }
 
+        // Validate and prepare MRP and discount values
+        let mrpValue = null;
+        let discountValue = null;
+        
+        console.log('Processing MRP:', { mrp, type: typeof mrp, isUndefined: mrp === undefined });
+        console.log('Processing discount:', { discount, type: typeof discount, isUndefined: discount === undefined });
+        
+        if (mrp !== undefined && mrp !== '' && mrp !== null) {
+            mrpValue = parseFloat(mrp);
+            if (isNaN(mrpValue)) {
+                return res.status(400).json({ message: 'Invalid MRP value' });
+            }
+        }
+        
+        if (discount !== undefined && discount !== '' && discount !== null) {
+            discountValue = parseFloat(discount);
+            if (isNaN(discountValue)) {
+                return res.status(400).json({ message: 'Invalid discount value' });
+            }
+            if (discountValue < 0 || discountValue > 100) {
+                return res.status(400).json({ message: 'Discount must be between 0 and 100' });
+            }
+        }
+        
+        console.log('Final values:', { mrpValue, discountValue });
+        
         const product = await Product.create({
             categoryId,
             name,
             slug,
             basePrice,
+            mrp: mrpValue,
+            discount: discountValue,
             description,
             mainImages,
             dynamicFields,
@@ -83,6 +115,13 @@ exports.createProduct = async (req, res, next) => {
             metaData: parsedMeta,
             hasVariants: hasVariants || false,
             variants: processedVariants
+        });
+        
+        console.log('Product created successfully:', { 
+            id: product._id, 
+            name: product.name, 
+            mrp: product.mrp, 
+            discount: product.discount 
         });
 
         // Generate SKUs for variants after product creation
@@ -109,6 +148,8 @@ exports.updateProduct = async (req, res, next) => {
             name,
             slug,
             basePrice,
+            mrp,
+            discount,
             description,
             metaData,
             variants,
@@ -117,6 +158,40 @@ exports.updateProduct = async (req, res, next) => {
         } = req.body;
 
         const updates = { categoryId, name, slug, basePrice, description };
+        
+        // Validate and prepare MRP and discount values
+        if (mrp !== undefined) {
+            if (mrp === '' || mrp === null) {
+                updates.mrp = null;
+            } else {
+                const mrpValue = parseFloat(mrp);
+                if (isNaN(mrpValue)) {
+                    return res.status(400).json({ message: 'Invalid MRP value' });
+                }
+                updates.mrp = mrpValue;
+            }
+        }
+        
+        if (discount !== undefined) {
+            if (discount === '' || discount === null) {
+                updates.discount = null;
+            } else {
+                const discountValue = parseFloat(discount);
+                if (isNaN(discountValue)) {
+                    return res.status(400).json({ message: 'Invalid discount value' });
+                }
+                if (discountValue < 0 || discountValue > 100) {
+                    return res.status(400).json({ message: 'Discount must be between 0 and 100' });
+                }
+                updates.discount = discountValue;
+            }
+        }
+        
+        // Add debug logging
+        console.log('=== UPDATE PRODUCT DEBUG ===');
+        console.log('Request body:', req.body);
+        console.log('Extracted values:', { mrp, discount });
+        console.log('Updates object:', updates);
         if (metaData) updates.metaData = typeof metaData === 'string' ? JSON.parse(metaData) : metaData;
         if (variants) updates.variants = typeof variants === 'string' ? JSON.parse(variants) : variants;
         if (variantOptions) updates.variantOptions = typeof variantOptions === 'string' ? JSON.parse(variantOptions) : variantOptions;
@@ -161,14 +236,25 @@ exports.updateProduct = async (req, res, next) => {
 // Get all products (optional filters)
 exports.getProducts = async (req, res, next) => {
     try {
-        const { categorySlug, categoryId } = req.query;
+        const { categorySlug, categoryId, featured, limit } = req.query;
         const filter = {};
+        
         if (categoryId) filter.categoryId = categoryId;
         if (categorySlug) {
             const category = await Category.findOne({ slug: categorySlug });
             if (category) filter.categoryId = category._id;
         }
-        const products = await Product.find(filter).sort({ createdAt: -1 });
+        
+        // For featured products, we'll use a simple approach
+        // You can enhance this later by adding a 'featured' field to products
+        let query = Product.find(filter).sort({ createdAt: -1 });
+        
+        // Apply limit if specified
+        if (limit && !isNaN(parseInt(limit))) {
+            query = query.limit(parseInt(limit));
+        }
+        
+        const products = await query.exec();
         res.json(products);
     } catch (err) {
         next(err);

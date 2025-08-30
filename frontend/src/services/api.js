@@ -68,7 +68,27 @@ class ApiService {
   }
 
   async getFeaturedProducts(limit = 8) {
-    return this.request(`/api/products?featured=true&limit=${limit}`);
+    try {
+      // Try to get featured products first
+      const featured = await this.request(`/api/products?featured=true&limit=${limit}`);
+      if (featured && Array.isArray(featured) && featured.length > 0) {
+        return featured;
+      }
+      
+      // Fallback to getting latest products with limit
+      const latest = await this.request(`/api/products?limit=${limit}`);
+      return latest || [];
+    } catch (error) {
+      console.warn('Featured products failed, falling back to latest products:', error);
+      // Final fallback - get all products and limit on frontend
+      try {
+        const allProducts = await this.request('/api/products');
+        return Array.isArray(allProducts) ? allProducts.slice(0, limit) : [];
+      } catch (fallbackError) {
+        console.error('All fallbacks failed:', fallbackError);
+        return [];
+      }
+    }
   }
 
   // Search

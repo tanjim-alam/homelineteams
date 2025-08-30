@@ -83,8 +83,53 @@ export default function ProductCard({ product }) {
   const isOutOfStock = stockStatus === 'Out of Stock';
   const discount = getDiscountPercentage();
 
-  const displayPrice = typeof price === 'number' && !isNaN(price) ? price : 0;
-  const displayMRP = typeof mrp === 'number' && !isNaN(mrp) ? mrp : 0;
+  // Calculate discount percentage if not provided
+  const calculateDiscount = () => {
+    if (product?.discount && parseFloat(product.discount) > 0) {
+      return product.discount;
+    }
+    if (product?.mrp && product?.basePrice) {
+      const mrpValue = parseFloat(product.mrp);
+      const basePriceValue = parseFloat(product.basePrice);
+      if (mrpValue > basePriceValue) {
+        return (((mrpValue - basePriceValue) / mrpValue) * 100).toFixed(1);
+      }
+    }
+    return null;
+  };
+
+  const calculatedDiscount = calculateDiscount();
+
+  // Check if there are any offers
+  const hasOffers = () => {
+    return displayMRP || calculatedDiscount;
+  };
+
+  // Get the best available price
+  const getBestPrice = () => {
+    return product?.basePrice || product?.price || 0;
+  };
+
+  // Get the MRP if available
+  const getMRP = () => {
+    return product?.mrp || null;
+  };
+
+  const displayPrice = getBestPrice();
+  const displayMRP = getMRP();
+
+  // Debug logging
+  console.log('ProductCard Debug:', {
+    productId: product?._id,
+    name: product?.name,
+    basePrice: product?.basePrice,
+    price: product?.price,
+    mrp: product?.mrp,
+    discount: product?.discount,
+    displayPrice,
+    displayMRP,
+    calculatedDiscount
+  });
 
   // Get first product image
   const productImage = product.mainImages?.[0] || product.images?.[0] || product.image || 'https://via.placeholder.com/400x400?text=Product+Image';
@@ -96,9 +141,9 @@ export default function ProductCard({ product }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* SALE Badge */}
-      {!product?.onSale && (
-        <span className="absolute top-2 left-2 bg-[#8b572a] text-white text-xs font-semibold px-2 py-1 rounded z-10">
+      {/* SALE Badge - Show only when there's an actual discount */}
+      {hasOffers() && (
+        <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded z-10">
           SALE
         </span>
       )}
@@ -155,14 +200,34 @@ export default function ProductCard({ product }) {
         <h3 className="text-sm font-medium text-gray-800 line-clamp-2 hover:text-primary-600 transition-colors">
           {product?.name}
         </h3>
-        <div className="mt-2 flex items-center gap-2">
+        <div className="mt-2 flex items-center gap-2 flex-wrap">
+          {/* Current Price */}
           <span className="text-lg font-semibold text-gray-900">
-            Rs.{product?.basePrice}
+            ₹{displayPrice}
           </span>
-          <span className="text-sm text-gray-500 line-through">
-            Rs.{product?.mrp}
-          </span>
-          <span className="text-sm text-red-600">{product?.discount}% off</span>
+          
+          {/* MRP - Always show if available */}
+          {displayMRP && (
+            <span className="text-sm text-gray-500 line-through">
+              ₹{displayMRP}
+            </span>
+          )}
+          
+          {/* Discount - Always show if available or calculated */}
+          {calculatedDiscount && (
+            <span className="text-sm text-red-600 font-medium">
+              {calculatedDiscount}% OFF
+            </span>
+          )}
+          
+          {/* Savings Amount - Show actual money saved */}
+          {displayMRP && 
+           displayPrice && 
+           parseFloat(displayMRP) > parseFloat(displayPrice) && (
+            <span className="text-xs text-green-600 font-medium">
+              Save ₹{(parseFloat(displayMRP) - parseFloat(displayPrice)).toFixed(2)}
+            </span>
+          )}
         </div>
       </Link>
     </div>

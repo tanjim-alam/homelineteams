@@ -3,6 +3,19 @@ import { useDispatch, useSelector } from 'react-redux'
 import { listProducts } from '../store/slices/productSlice'
 import { listCategories } from '../store/slices/categorySlice'
 import { listOrders } from '../store/slices/orderSlice'
+import { 
+  Package, 
+  FolderOpen, 
+  ShoppingCart, 
+  DollarSign, 
+  Clock, 
+  CheckCircle, 
+  AlertTriangle, 
+  TrendingUp, 
+  Plus,
+  BarChart3,
+  Eye
+} from 'lucide-react'
 
 export default function DashboardPage() {
   const dispatch = useDispatch()
@@ -47,19 +60,27 @@ export default function DashboardPage() {
       .slice(0, 5)
   }
 
-  const StatCard = ({ title, value, icon, color, loading }) => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+  const StatCard = ({ title, value, icon: Icon, color, bgColor, loading, trend }) => (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-600 mb-2">{title}</p>
           {loading ? (
-            <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mt-2"></div>
+            <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
           ) : (
-            <p className="text-2xl font-bold text-gray-900 mt-2">{value}</p>
+            <div className="flex items-center space-x-2">
+              <p className="text-3xl font-bold text-gray-900">{value}</p>
+              {trend && (
+                <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${trend > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  <TrendingUp className={`w-3 h-3 ${trend > 0 ? 'text-green-600' : 'text-red-600'}`} />
+                  <span>{Math.abs(trend)}%</span>
+                </div>
+              )}
+            </div>
           )}
         </div>
-        <div className={`p-3 rounded-full ${color}`}>
-          {icon}
+        <div className={`p-4 rounded-2xl ${bgColor}`}>
+          <Icon className={`w-8 h-8 ${color}`} />
         </div>
       </div>
     </div>
@@ -67,177 +88,249 @@ export default function DashboardPage() {
 
   const OrderStatusBadge = ({ status }) => {
     const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800', text: 'Pending' },
-      processing: { color: 'bg-blue-100 text-blue-800', text: 'Processing' },
-      completed: { color: 'bg-green-100 text-green-800', text: 'Completed' },
-      cancelled: { color: 'bg-red-100 text-red-800', text: 'Cancelled' }
+      pending: { color: 'bg-amber-50 text-amber-700 border-amber-200', text: 'Pending' },
+      processing: { color: 'bg-blue-50 text-blue-700 border-blue-200', text: 'Processing' },
+      completed: { color: 'bg-emerald-50 text-emerald-700 border-emerald-200', text: 'Completed' },
+      cancelled: { color: 'bg-red-50 text-red-700 border-red-200', text: 'Cancelled' }
     }
     const config = statusConfig[status] || statusConfig.pending
     return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${config.color}`}>
+      <span className={`px-3 py-1.5 text-xs font-medium rounded-full border ${config.color}`}>
         {config.text}
       </span>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome to your admin dashboard</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center lg:text-left">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+          Dashboard
+        </h1>
+        <p className="text-lg text-gray-600 mt-3">Welcome back! Here's what's happening with your store today.</p>
       </div>
 
-      {/* Stats Grid */}
+      {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Products"
           value={products.length}
-          icon={<svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>}
-          color="bg-blue-50"
+          icon={Package}
+          color="text-blue-600"
+          bgColor="bg-blue-50"
           loading={productsLoading}
+          trend={12}
         />
         <StatCard
           title="Total Categories"
           value={categories.length}
-          icon={<svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}
-          color="bg-green-50"
+          icon={FolderOpen}
+          color="text-emerald-600"
+          bgColor="bg-emerald-50"
           loading={categoriesLoading}
+          trend={8}
         />
         <StatCard
           title="Total Orders"
           value={orders.length}
-          icon={<svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>}
-          color="bg-purple-50"
+          icon={ShoppingCart}
+          color="text-purple-600"
+          bgColor="bg-purple-50"
           loading={ordersLoading}
+          trend={15}
         />
         <StatCard
           title="Total Revenue"
           value={`₹${getTotalRevenue().toLocaleString()}`}
-          icon={<svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" /></svg>}
-          color="bg-yellow-50"
+          icon={DollarSign}
+          color="text-amber-600"
+          bgColor="bg-amber-50"
           loading={ordersLoading}
+          trend={23}
         />
       </div>
 
-      {/* Additional Stats */}
+      {/* Secondary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Pending Orders"
           value={getPendingOrders()}
-          icon={<svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
-          color="bg-orange-50"
+          icon={Clock}
+          color="text-amber-600"
+          bgColor="bg-amber-50"
           loading={ordersLoading}
         />
         <StatCard
           title="Completed Orders"
           value={getCompletedOrders()}
-          icon={<svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
-          color="bg-emerald-50"
+          icon={CheckCircle}
+          color="text-emerald-600"
+          bgColor="bg-emerald-50"
           loading={ordersLoading}
         />
         <StatCard
           title="Low Stock Products"
           value={getLowStockProducts()}
-          icon={<svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>}
-          color="bg-red-50"
+          icon={AlertTriangle}
+          color="text-red-600"
+          bgColor="bg-red-50"
           loading={productsLoading}
         />
       </div>
 
-      {/* Recent Orders & Top Categories */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts and Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Orders */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900">Recent Orders</h3>
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <ShoppingCart className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
           </div>
           <div className="p-6">
             {ordersLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="h-16 bg-gray-200 rounded animate-pulse"></div>
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                      <div className="h-3 bg-gray-200 rounded animate-pulse w-16"></div>
+                    </div>
+                    <div className="w-20 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                  </div>
                 ))}
               </div>
             ) : getRecentOrders().length > 0 ? (
               <div className="space-y-4">
                 {getRecentOrders().map((order) => (
-                  <div key={order._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">Order #{order._id.slice(-6)}</p>
-                      <p className="text-sm text-gray-600">₹{order.totalAmount || 0}</p>
+                  <div key={order._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center">
+                        <ShoppingCart className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">Order #{order._id.slice(-6)}</p>
+                        <p className="text-sm text-gray-600">₹{order.totalAmount || 0}</p>
+                      </div>
                     </div>
                     <OrderStatusBadge status={order.status} />
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-4">No orders found</p>
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ShoppingCart className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium">No orders found</p>
+                <p className="text-sm text-gray-400">Orders will appear here once they're created</p>
+              </div>
             )}
           </div>
         </div>
 
         {/* Top Categories */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Top Categories</h3>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900">Top Categories</h3>
+              <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-emerald-600" />
+              </div>
+            </div>
           </div>
           <div className="p-6">
             {categoriesLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="h-12 bg-gray-200 rounded animate-pulse"></div>
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                    </div>
+                    <div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
                 ))}
               </div>
             ) : getTopCategories().length > 0 ? (
               <div className="space-y-4">
                 {getTopCategories().map(([category, count], index) => (
-                  <div key={category} className="flex items-center justify-between">
+                  <div key={category} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-blue-600">{index + 1}</span>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                        index === 0 ? 'bg-gradient-to-br from-amber-100 to-orange-100' :
+                        index === 1 ? 'bg-gradient-to-br from-gray-100 to-gray-200' :
+                        index === 2 ? 'bg-gradient-to-br from-amber-100 to-yellow-100' :
+                        'bg-gradient-to-br from-blue-100 to-purple-100'
+                      }`}>
+                        <span className={`text-sm font-bold ${
+                          index === 0 ? 'text-amber-700' :
+                          index === 1 ? 'text-gray-700' :
+                          index === 2 ? 'text-amber-700' :
+                          'text-blue-700'
+                        }`}>{index + 1}</span>
                       </div>
                       <span className="font-medium text-gray-900">{category}</span>
                     </div>
-                    <span className="text-sm text-gray-600">{count} products</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-semibold text-gray-900">{count}</span>
+                      <span className="text-xs text-gray-500">products</span>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-4">No categories found</p>
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FolderOpen className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium">No categories found</p>
+                <p className="text-sm text-gray-400">Categories will appear here once they're created</p>
+              </div>
             )}
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">Quick Actions</h3>
+          <p className="text-gray-600">Get started with these common tasks</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <button className="group p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 hover:shadow-md">
             <div className="text-center">
-              <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <p className="font-medium text-gray-900">Add Product</p>
-              <p className="text-sm text-gray-600">Create new product</p>
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
+                <Plus className="w-8 h-8 text-blue-600" />
+              </div>
+              <p className="font-semibold text-gray-900 text-lg mb-2">Add Product</p>
+              <p className="text-gray-600">Create a new product listing</p>
             </div>
           </button>
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-400 hover:bg-green-50 transition-colors">
+          
+          <button className="group p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-emerald-400 hover:bg-gradient-to-br hover:from-emerald-50 hover:to-green-50 transition-all duration-200 hover:shadow-md">
             <div className="text-center">
-              <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              <p className="font-medium text-gray-900">Add Category</p>
-              <p className="text-sm text-gray-600">Create new category</p>
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
+                <FolderOpen className="w-8 h-8 text-emerald-600" />
+              </div>
+              <p className="font-semibold text-gray-900 text-lg mb-2">Add Category</p>
+              <p className="text-gray-600">Organize your products</p>
             </div>
           </button>
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors">
+          
+          <button className="group p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-purple-400 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 transition-all duration-200 hover:shadow-md">
             <div className="text-center">
-              <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <p className="font-medium text-gray-900">View Analytics</p>
-              <p className="text-sm text-gray-600">Detailed reports</p>
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
+                <Eye className="w-8 h-8 text-purple-600" />
+              </div>
+              <p className="font-semibold text-gray-900 text-lg mb-2">View Analytics</p>
+              <p className="text-gray-600">Detailed reports & insights</p>
             </div>
           </button>
         </div>

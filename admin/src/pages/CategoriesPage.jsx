@@ -10,6 +10,20 @@ import {
   clearError
 } from '../store/slices/categorySlice'
 import RichTextEditor from '../components/RichTextEditor'
+import { 
+  Plus, 
+  FolderOpen, 
+  AlertCircle, 
+  X, 
+  Edit3, 
+  Trash2, 
+  Settings, 
+  Tag,
+  FileText,
+  ImageIcon,
+  Eye,
+  EyeOff
+} from 'lucide-react'
 
 export default function CategoriesPage() {
   const dispatch = useDispatch()
@@ -230,28 +244,32 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+            Categories
+          </h1>
+          <p className="text-lg text-gray-600 mt-2">Manage your product categories and organize your inventory</p>
+        </div>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
         >
-          Add Category
+          <Plus className="w-5 h-5" />
+          <span>Add Category</span>
         </button>
       </div>
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
+          <div className="flex items-center space-x-3">
+            <AlertCircle className="h-6 w-6 text-red-500 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-semibold text-red-800">Error</h3>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
             </div>
           </div>
         </div>
@@ -259,42 +277,45 @@ export default function CategoriesPage() {
 
       {/* Category Form */}
       {showForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {editingCategory ? 'Edit Category' : 'Add New Category'}
-            </h2>
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center">
+                <FolderOpen className="w-5 h-5 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {editingCategory ? 'Edit Category' : 'Add New Category'}
+              </h2>
+            </div>
             <button
               onClick={() => {
                 setShowForm(false)
                 resetForm()
               }}
-              className="text-gray-400 hover:text-gray-600"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-6 h-6" />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Basic Information */}
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category Name *</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Category Name *</label>
                   <input
                     type="text"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     onBlur={() => generateSlug(form.name)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category Slug *</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Category Slug *</label>
                   <input
                     type="text"
                     value={form.slug}
@@ -306,31 +327,31 @@ export default function CategoriesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Description</label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
                     rows={3}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                     placeholder="Brief description of the category"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Category Image</label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                   />
                 </div>
               </div>
 
               {/* SEO Metadata */}
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Meta Title</label>
                   <input
                     type="text"
                     value={form.metaData.title}
@@ -338,14 +359,14 @@ export default function CategoriesPage() {
                       ...form,
                       metaData: { ...form.metaData, title: e.target.value }
                     })}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                     placeholder="SEO title for search engines"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Recommended: 50-60 characters</p>
+                  <p className="text-xs text-gray-500 mt-2">Recommended: 50-60 characters</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Meta Description</label>
                   <textarea
                     value={form.metaData.description}
                     onChange={(e) => setForm({
@@ -353,14 +374,14 @@ export default function CategoriesPage() {
                       metaData: { ...form.metaData, description: e.target.value }
                     })}
                     rows={3}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                     placeholder="SEO description for search engines"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Recommended: 150-160 characters</p>
+                  <p className="text-xs text-gray-500 mt-2">Recommended: 150-160 characters</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Meta Keywords</label>
                   <input
                     type="text"
                     value={form.metaData.keywords}
@@ -368,14 +389,14 @@ export default function CategoriesPage() {
                       ...form,
                       metaData: { ...form.metaData, keywords: e.target.value }
                     })}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                     placeholder="Keywords separated by commas"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Comma-separated keywords for SEO</p>
+                  <p className="text-xs text-gray-500 mt-2">Comma-separated keywords for SEO</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Open Graph Image</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Open Graph Image</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -388,42 +409,42 @@ export default function CategoriesPage() {
                         })
                       }
                     }}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Image for social media sharing (1200x630px recommended)</p>
+                  <p className="text-xs text-gray-500 mt-2">Image for social media sharing (1200x630px recommended)</p>
                 </div>
               </div>
             </div>
 
             {/* SEO Content Editor */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">SEO Content (Rich Text)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">SEO Content (Rich Text)</label>
               <RichTextEditor
                 value={form.seoContent}
                 onChange={(value) => setForm({ ...form, seoContent: value })}
                 placeholder="Enter rich HTML content for SEO. This content will be displayed on category pages and help with search engine rankings."
                 rows={8}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-2">
                 Rich HTML content for SEO. This content will be displayed on category pages and help with search engine rankings.
               </p>
             </div>
 
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">
               <button
                 type="button"
                 onClick={() => {
                   setShowForm(false)
                   resetForm()
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 border-2 border-gray-200 rounded-2xl text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={createLoading || updateLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 {createLoading || updateLoading ? 'Saving...' : (editingCategory ? 'Update Category' : 'Create Category')}
               </button>
@@ -434,51 +455,54 @@ export default function CategoriesPage() {
 
       {/* Custom Field Form */}
       {showCustomFieldForm && selectedCategory && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Add Custom Field to {selectedCategory.name}
-            </h2>
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-teal-100 rounded-xl flex items-center justify-center">
+                <Tag className="w-5 h-5 text-green-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Add Custom Field to {selectedCategory.name}
+              </h2>
+            </div>
             <button
               onClick={() => setShowCustomFieldForm(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-6 h-6" />
             </button>
           </div>
 
-          <form onSubmit={handleCustomFieldSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleCustomFieldSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Field Name *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Field Name *</label>
                 <input
                   type="text"
                   value={customFieldForm.name}
                   onChange={(e) => setCustomFieldForm({ ...customFieldForm, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Field Slug *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Field Slug *</label>
                 <input
                   type="text"
                   value={customFieldForm.slug}
                   onChange={(e) => setCustomFieldForm({ ...customFieldForm, slug: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Field Type *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Field Type *</label>
                 <select
                   value={customFieldForm.type}
                   onChange={(e) => setCustomFieldForm({ ...customFieldForm, type: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                 >
                   <option value="text">Text</option>
                   <option value="number">Number</option>
@@ -534,9 +558,7 @@ export default function CategoriesPage() {
                         onClick={() => removeOption(index)}
                         className="px-3 py-2 text-red-600 hover:text-red-800"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                        <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
                   ))}
@@ -551,17 +573,17 @@ export default function CategoriesPage() {
               </div>
             )}
 
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">
               <button
                 type="button"
                 onClick={() => setShowCustomFieldForm(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 border-2 border-gray-200 rounded-2xl text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 Add Field
               </button>
@@ -572,51 +594,54 @@ export default function CategoriesPage() {
 
       {/* Variant Field Form */}
       {showVariantFieldForm && selectedCategory && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Add Variant Field to {selectedCategory.name}
-            </h2>
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
+                <Settings className="w-5 h-5 text-purple-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Add Variant Field to {selectedCategory.name}
+              </h2>
+            </div>
             <button
               onClick={() => setShowVariantFieldForm(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-6 h-6" />
             </button>
           </div>
 
-          <form onSubmit={handleVariantFieldSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleVariantFieldSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Field Name *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Field Name *</label>
                 <input
                   type="text"
                   value={variantFieldForm.name}
                   onChange={(e) => setVariantFieldForm({ ...variantFieldForm, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Field Slug *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Field Slug *</label>
                 <input
                   type="text"
                   value={variantFieldForm.slug}
                   onChange={(e) => setVariantFieldForm({ ...variantFieldForm, slug: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Field Type *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Field Type *</label>
                 <select
                   value={variantFieldForm.type}
                   onChange={(e) => setVariantFieldForm({ ...variantFieldForm, type: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                 >
                   <option value="dropdown">Dropdown</option>
                   <option value="number">Number</option>
@@ -625,23 +650,23 @@ export default function CategoriesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Unit (optional)</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Unit (optional)</label>
                 <input
                   type="text"
                   value={variantFieldForm.unit}
                   onChange={(e) => setVariantFieldForm({ ...variantFieldForm, unit: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                   placeholder="e.g., ft, cm, kg"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Order</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Order</label>
                 <input
                   type="number"
                   value={variantFieldForm.order}
                   onChange={(e) => setVariantFieldForm({ ...variantFieldForm, order: parseInt(e.target.value) })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
                   min="1"
                 />
               </div>
@@ -678,9 +703,7 @@ export default function CategoriesPage() {
                         onClick={() => removeOption(index)}
                         className="px-3 py-2 text-red-600 hover:text-red-800"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                        <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
                   ))}
@@ -695,17 +718,17 @@ export default function CategoriesPage() {
               </div>
             )}
 
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">
               <button
                 type="button"
                 onClick={() => setShowVariantFieldForm(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 border-2 border-gray-200 rounded-2xl text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 Add Variant Field
               </button>
@@ -715,32 +738,51 @@ export default function CategoriesPage() {
       )}
 
       {/* Categories List */}
-      <div className="bg-white rounded-lg shadow-md">
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         {loading ? (
-          <div className="p-6">
-            <div className="animate-pulse space-y-4">
+          <div className="p-8">
+            <div className="animate-pulse space-y-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 bg-gray-200 rounded"></div>
+                <div key={i} className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-gray-200 rounded-2xl"></div>
+                  <div className="flex-1 space-y-3">
+                    <div className="h-6 bg-gray-200 rounded w-32"></div>
+                    <div className="h-4 bg-gray-200 rounded w-48"></div>
+                  </div>
+                  <div className="w-24 h-8 bg-gray-200 rounded-lg"></div>
+                </div>
               ))}
             </div>
           </div>
         ) : items.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No categories</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by creating a new category.</p>
+          <div className="p-12 text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FolderOpen className="w-10 h-10 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No categories found</h3>
+            <p className="text-gray-600 mb-6">Get started by creating your first product category.</p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Create Category</span>
+            </button>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-100">
             {items.map((category) => (
-              <div key={category._id} className="p-6">
+              <div key={category._id} className="p-8 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <h3 className="text-lg font-medium text-gray-900">{category.name}</h3>
-                      <span className="text-sm text-gray-500">/{category.slug}</span>
+                    <div className="flex items-center space-x-4 mb-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
+                        <FolderOpen className="w-8 h-8 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-1">{category.name}</h3>
+                        <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">/{category.slug}</span>
+                      </div>
                     </div>
 
                     {category.description && (
@@ -832,36 +874,40 @@ export default function CategoriesPage() {
                     )}
                   </div>
 
-                  <div className="flex flex-col space-y-2 ml-4">
+                  <div className="flex flex-col space-y-3 ml-6">
                     <button
                       onClick={() => handleEdit(category)}
-                      className="px-3 py-1 text-blue-600 hover:text-blue-800 text-sm"
+                      className="inline-flex items-center space-x-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all duration-200 text-sm font-medium"
                     >
-                      Edit
+                      <Edit3 className="w-4 h-4" />
+                      <span>Edit</span>
                     </button>
                     <button
                       onClick={() => {
                         setSelectedCategory(category)
                         setShowCustomFieldForm(true)
                       }}
-                      className="px-3 py-1 text-green-600 hover:text-green-800 text-sm"
+                      className="inline-flex items-center space-x-2 px-4 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition-all duration-200 text-sm font-medium"
                     >
-                      Add Field
+                      <Tag className="w-4 h-4" />
+                      <span>Add Field</span>
                     </button>
                     <button
                       onClick={() => {
                         setSelectedCategory(category)
                         setShowVariantFieldForm(true)
                       }}
-                      className="px-3 py-1 text-purple-600 hover:text-purple-800 text-sm"
+                      className="inline-flex items-center space-x-2 px-4 py-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-xl transition-all duration-200 text-sm font-medium"
                     >
-                      Add Variant Field
+                      <Settings className="w-4 h-4" />
+                      <span>Add Variant</span>
                     </button>
                     <button
                       onClick={() => handleDelete(category._id)}
-                      className="px-3 py-1 text-red-600 hover:text-red-800 text-sm"
+                      className="inline-flex items-center space-x-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all duration-200 text-sm font-medium"
                     >
-                      Delete
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete</span>
                     </button>
                   </div>
                 </div>

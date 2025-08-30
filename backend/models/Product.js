@@ -31,6 +31,8 @@ const productSchema = new mongoose.Schema(
 		name: { type: String, required: true },
 		slug: { type: String, required: true, unique: true, index: true },
 		basePrice: { type: Number, required: true }, // base price for the product
+		mrp: { type: Number }, // Maximum Retail Price
+		discount: { type: Number }, // Discount percentage
 		description: { type: String }, // rich text HTML
 		mainImages: [{ type: String }], // main product images
 		// dynamicFields stores key-value pairs based on category customFields slugs
