@@ -6,11 +6,61 @@ exports.createCategory = async (req, res, next) => {
   try {
     const { name, slug, description, seoContent } = req.body;
 
-    // Handle FormData fields for metaData
+    console.log('=== CREATE CATEGORY DEBUG ===');
+    console.log('Request body:', req.body);
+    console.log('Files:', req.files);
+    console.log('All request data keys:', Object.keys(req.body));
+    
+    // Check if metaData is sent as nested object
+    console.log('Nested metaData object:', req.body.metaData);
+
+    // Handle metadata - support both nested object and flat fields
     let metaData = {};
-    if (req.body['metaData[title]']) metaData.title = req.body['metaData[title]'];
-    if (req.body['metaData[description]']) metaData.description = req.body['metaData[description]'];
-    if (req.body['metaData[keywords]']) metaData.keywords = req.body['metaData[keywords]'];
+    
+    // ✅ Handle nested metaData object (from admin panel)
+    if (req.body.metaData && typeof req.body.metaData === 'object') {
+      console.log('Processing nested metaData object from admin panel');
+      
+      if (req.body.metaData.title !== undefined) {
+        metaData.title = req.body.metaData.title || '';
+      }
+      if (req.body.metaData.description !== undefined) {
+        metaData.description = req.body.metaData.description || '';
+      }
+      if (req.body.metaData.keywords !== undefined) {
+        // Convert keywords string to array if it's not empty
+        const keywordsString = req.body.metaData.keywords || '';
+        if (keywordsString && keywordsString.trim()) {
+          metaData.keywords = keywordsString.split(',').map(k => k.trim()).filter(k => k);
+        } else {
+          metaData.keywords = [];
+        }
+      }
+      if (req.body.metaData.ogImage !== undefined) {
+        metaData.ogImage = req.body.metaData.ogImage || '';
+      }
+    } else {
+      // ✅ Handle FormData fields for metaData (fallback for Postman)
+      console.log('Processing flat metaData fields (Postman format)');
+      console.log('MetaData fields:');
+      console.log('- metaData[title]:', req.body['metaData[title]']);
+      console.log('- metaData[description]:', req.body['metaData[description]']);
+      console.log('- metaData[keywords]:', req.body['metaData[keywords]']);
+      
+      if (req.body['metaData[title]'] !== undefined) metaData.title = req.body['metaData[title]'] || '';
+      if (req.body['metaData[description]'] !== undefined) metaData.description = req.body['metaData[description]'] || '';
+      if (req.body['metaData[keywords]'] !== undefined) {
+        // Convert keywords string to array
+        const keywordsString = req.body['metaData[keywords]'] || '';
+        if (keywordsString && keywordsString.trim()) {
+          metaData.keywords = keywordsString.split(',').map(k => k.trim()).filter(k => k);
+        } else {
+          metaData.keywords = [];
+        }
+      }
+    }
+    
+    console.log('Processed metaData:', metaData);
 
     let imageUrl;
 
@@ -36,6 +86,12 @@ exports.createCategory = async (req, res, next) => {
       image: imageUrl,
       metaData,
       seoContent
+    });
+
+    console.log('Category created successfully:', {
+      id: category._id,
+      name: category.name,
+      metaData: category.metaData
     });
 
     res.status(201).json(category);
@@ -95,10 +151,10 @@ exports.getCategoryFilterOptions = async (req, res, next) => {
     // Extract only essential filter options
     const filterOptions = {
       // Price range from products
-      priceRange: {
-        min: Math.min(...products.map(p => p.basePrice)),
-        max: Math.max(...products.map(p => p.basePrice))
-      },
+      priceRange: products.length > 0 ? {
+        min: Math.min(...products.map(p => p.basePrice || 0)),
+        max: Math.max(...products.map(p => p.basePrice || 0))
+      } : { min: 0, max: 1000 },
       
       // Brands from dynamic fields (if they exist)
       brands: [],
@@ -205,21 +261,63 @@ exports.updateCategory = async (req, res, next) => {
     const { id } = req.params;
     const { name, slug, description, seoContent } = req.body;
 
+    console.log('=== UPDATE CATEGORY DEBUG ===');
+    console.log('Request body:', req.body);
+    console.log('Files:', req.files);
+    console.log('All request data keys:', Object.keys(req.body));
+    
+    // Check if metaData is sent as nested object
+    console.log('Nested metaData object:', req.body.metaData);
+    
     const updates = { name, slug, description, seoContent };
 
-    // ✅ Handle FormData fields for metaData
-    if (req.body['metaData[title]'] !== undefined) {
-      updates.metaData = updates.metaData || {};
-      updates.metaData.title = req.body['metaData[title]'];
+    // ✅ Handle nested metaData object (new approach)
+    if (req.body.metaData && typeof req.body.metaData === 'object') {
+      console.log('Processing nested metaData object');
+      updates.metaData = {};
+      
+      if (req.body.metaData.title !== undefined) {
+        updates.metaData.title = req.body.metaData.title || '';
+      }
+      if (req.body.metaData.description !== undefined) {
+        updates.metaData.description = req.body.metaData.description || '';
+      }
+      if (req.body.metaData.keywords !== undefined) {
+        // Convert keywords string to array if it's not empty
+        const keywordsString = req.body.metaData.keywords || '';
+        if (keywordsString && keywordsString.trim()) {
+          updates.metaData.keywords = keywordsString.split(',').map(k => k.trim()).filter(k => k);
+        } else {
+          updates.metaData.keywords = [];
+        }
+      }
+      if (req.body.metaData.ogImage !== undefined) {
+        updates.metaData.ogImage = req.body.metaData.ogImage || '';
+      }
+    } else {
+      // ✅ Handle FormData fields for metaData (fallback approach)
+      console.log('Processing flat metaData fields');
+      if (req.body['metaData[title]'] !== undefined) {
+        updates.metaData = updates.metaData || {};
+        updates.metaData.title = req.body['metaData[title]'] || '';
+      }
+      if (req.body['metaData[description]'] !== undefined) {
+        updates.metaData = updates.metaData || {};
+        updates.metaData.description = req.body['metaData[description]'] || '';
+      }
+      if (req.body['metaData[keywords]'] !== undefined) {
+        updates.metaData = updates.metaData || {};
+        // Convert keywords string to array if it's not empty
+        const keywordsString = req.body['metaData[keywords]'] || '';
+        if (keywordsString && keywordsString.trim()) {
+          updates.metaData.keywords = keywordsString.split(',').map(k => k.trim()).filter(k => k);
+        } else {
+          updates.metaData.keywords = [];
+        }
+      }
     }
-    if (req.body['metaData[description]'] !== undefined) {
-      updates.metaData = updates.metaData || {};
-      updates.metaData.description = req.body['metaData[description]'];
-    }
-    if (req.body['metaData[keywords]'] !== undefined) {
-      updates.metaData = updates.metaData || {};
-      updates.metaData.keywords = req.body['metaData[keywords]'];
-    }
+    
+    console.log('Processed updates.metaData:', updates.metaData);
 
     // ✅ Handle main image update
     if (req.files && req.files.image) {
@@ -236,8 +334,30 @@ exports.updateCategory = async (req, res, next) => {
       updates.metaData.ogImage = uploaded.secure_url;
     }
 
-    const category = await Category.findByIdAndUpdate(id, updates, { new: true });
+    // Use $set operator for nested updates to ensure proper MongoDB update
+    const updateQuery = {};
+    Object.keys(updates).forEach(key => {
+      if (key === 'metaData' && updates.metaData) {
+        // Handle nested metaData updates properly
+        Object.keys(updates.metaData).forEach(metaKey => {
+          updateQuery[`metaData.${metaKey}`] = updates.metaData[metaKey];
+        });
+      } else {
+        updateQuery[key] = updates[key];
+      }
+    });
+    
+    console.log('Final update query:', updateQuery);
+    
+    const category = await Category.findByIdAndUpdate(id, { $set: updateQuery }, { new: true });
     if (!category) return res.status(404).json({ message: 'Category not found' });
+    
+    console.log('Category updated successfully:', {
+      id: category._id,
+      name: category.name,
+      metaData: category.metaData
+    });
+    
     res.json(category);
   } catch (err) {
     next(err);

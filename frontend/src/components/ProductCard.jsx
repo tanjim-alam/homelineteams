@@ -118,19 +118,6 @@ export default function ProductCard({ product }) {
   const displayPrice = getBestPrice();
   const displayMRP = getMRP();
 
-  // Debug logging
-  console.log('ProductCard Debug:', {
-    productId: product?._id,
-    name: product?.name,
-    basePrice: product?.basePrice,
-    price: product?.price,
-    mrp: product?.mrp,
-    discount: product?.discount,
-    displayPrice,
-    displayMRP,
-    calculatedDiscount
-  });
-
   // Get first product image
   const productImage = product.mainImages?.[0] || product.images?.[0] || product.image || 'https://via.placeholder.com/400x400?text=Product+Image';
   const [hovered, setHovered] = useState(false);

@@ -1,6 +1,7 @@
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import BottomNavbar from '@/components/BottomNavbar';
 import { CartProvider } from '@/contexts/CartContext';
 
 export default function RootLayout({ children }) {
@@ -44,8 +45,9 @@ export default function RootLayout({ children }) {
       <body>
         <CartProvider>
           <Navbar />
-          <main>{children}</main>
+          <main className="pb-20 lg:pb-0">{children}</main>
           <Footer />
+          <BottomNavbar />
         </CartProvider>
       </body>
     </html>

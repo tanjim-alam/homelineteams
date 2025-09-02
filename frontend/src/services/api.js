@@ -63,7 +63,39 @@ class ApiService {
   }
 
   async getProductsByCategory(categoryId, params = {}) {
-    const queryString = new URLSearchParams({ categoryId, ...params }).toString();
+    // Convert complex objects to JSON strings for backend
+    const processedParams = { ...params };
+    
+    console.log('=== API SERVICE DEBUG ===');
+    console.log('Original params:', params);
+    
+    if (params.priceRange) {
+      processedParams.priceRange = JSON.stringify(params.priceRange);
+    }
+    if (params.brands && Array.isArray(params.brands)) {
+      processedParams.brands = JSON.stringify(params.brands);
+    }
+    if (params.ratings && Array.isArray(params.ratings)) {
+      processedParams.ratings = JSON.stringify(params.ratings);
+    }
+    if (params.availability && Array.isArray(params.availability)) {
+      processedParams.availability = JSON.stringify(params.availability);
+    }
+    
+    // Handle dynamic filters
+    Object.keys(params).forEach(key => {
+      if (key !== 'priceRange' && key !== 'brands' && key !== 'ratings' && key !== 'availability' && key !== 'sort' && key !== 'limit') {
+        if (Array.isArray(params[key])) {
+          processedParams[key] = JSON.stringify(params[key]);
+        }
+      }
+    });
+    
+    console.log('Processed params:', processedParams);
+    
+    const queryString = new URLSearchParams({ categoryId, ...processedParams }).toString();
+    console.log('Final URL:', `/api/products?${queryString}`);
+    
     return this.request(`/api/products?${queryString}`);
   }
 

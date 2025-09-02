@@ -84,7 +84,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
       <div className="container-custom">
         {/* Top Bar */}
         {/* <div className="hidden lg:flex items-center justify-between py-2 text-sm text-gray-600 border-b border-gray-100">

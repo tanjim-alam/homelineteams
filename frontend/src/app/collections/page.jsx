@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Sparkles, Star, ShoppingBag, Loader2, Package } from 'lucide-react';
 import api from '@/services/api';
+import Metadata from '@/components/Metadata';
+import { generateCollectionsMetadata } from '@/utils/metadata';
 
 export default function CollectionsPage() {
   const [categories, setCategories] = useState([]);
@@ -79,92 +81,97 @@ export default function CollectionsPage() {
     return features.slice(0, 4);
   };
 
-  // Loading state
+    // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-        {/* Hero Section with Background Image */}
-        <section className="relative py-5 overflow-hidden h-[60vh]">
-          {/* Background Image */}
-          <div className="absolute inset-0">
-            <Image
-              src="/hero-bg-1.jpg"
-              alt="Beautiful home interior with elegant furnishings"
-              fill
-              className="object-cover"
-              priority
-              sizes="100vw"
-            />
-            {/* Dark overlay for better text readability */}
-            <div className="absolute inset-0 bg-black/40"></div>
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-900/20 via-transparent to-purple-900/20"></div>
-          </div>
-          
-          {/* Floating decorative elements */}
-          <div className="absolute inset-0">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-primary-100/30 to-pink-100/30 rounded-full mix-blend-overlay filter blur-3xl opacity-60"></div>
-            <div className="absolute bottom-20 right-10 w-72 h-72 bg-gradient-to-r from-blue-100/30 to-purple-100/30 rounded-full mix-blend-overlay filter blur-3xl opacity-60"></div>
-          </div>
-          
-          <div className="relative z-10 container-custom text-center">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full shadow-lg mb-6 border border-white/30">
-              <Sparkles className="w-5 h-5 text-yellow-300" />
-              <span className="text-sm font-semibold text-white">Premium Collections</span>
+      <>
+        <Metadata {...generateCollectionsMetadata()} />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+          {/* Hero Section with Background Image */}
+          <section className="relative py-5 overflow-hidden h-[60vh]">
+            {/* Background Image */}
+            <div className="absolute inset-0">
+              <Image
+                src="/hero-bg-1.jpg"
+                alt="Beautiful home interior with elegant furnishings"
+                fill
+                className="object-cover"
+                priority
+                sizes="100vw"
+              />
+              {/* Dark overlay for better text readability */}
+              <div className="absolute inset-0 bg-black/40"></div>
+              {/* Subtle gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-900/20 via-transparent to-purple-900/20"></div>
             </div>
             
-            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 drop-shadow-lg">
-              Explore Our{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-300">
-                Beautiful Collections
-              </span>
-            </h1>
+            {/* Floating decorative elements */}
+            <div className="absolute inset-0">
+              <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-primary-100/30 to-pink-100/30 rounded-full mix-blend-overlay filter blur-3xl opacity-60"></div>
+              <div className="absolute bottom-20 right-10 w-72 h-72 bg-gradient-to-r from-blue-100/30 to-purple-100/30 rounded-full mix-blend-overlay filter blur-3xl opacity-60"></div>
+            </div>
             
-            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
-              Discover thoughtfully curated home furnishings that blend style, comfort, and functionality. 
-              Each collection tells a unique story for your home.
-            </p>
-            
-            {/* Loading indicator */}
-            <div className="mt-8 flex justify-center">
-              <div className="bg-white/20 backdrop-blur-md px-8 py-4 rounded-full border border-white/30">
-                <Loader2 className="w-6 h-6 text-white animate-spin" />
+            <div className="relative z-10 container-custom text-center">
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full shadow-lg mb-6 border border-white/30">
+                <Sparkles className="w-5 h-5 text-yellow-300" />
+                <span className="text-sm font-semibold text-white">Premium Collections</span>
+              </div>
+              
+              <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 drop-shadow-lg">
+                Explore Our{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-300">
+                  Beautiful Collections
+                </span>
+              </h1>
+              
+              <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+                Discover thoughtfully curated home furnishings that blend style, comfort, and functionality. 
+                Each collection tells a unique story for your home.
+              </p>
+              
+              {/* Loading indicator */}
+              <div className="mt-8 flex justify-center">
+                <div className="bg-white/20 backdrop-blur-md px-8 py-4 rounded-full border border-white/30">
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Loading Collections Grid */}
-        <section className="py-20">
-          <div className="container-custom">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[...Array(6)].map((_, index) => (
-                <div key={index} className="card animate-pulse">
-                  <div className="relative overflow-hidden aspect-[4/3] bg-gray-200"></div>
-                  <div className="p-6 space-y-4">
-                    <div className="h-6 bg-gray-200 rounded"></div>
-                    <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 rounded"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    </div>
-                    <div className="flex gap-2">
-                      {[...Array(3)].map((_, i) => (
-                        <div key={i} className="h-6 bg-gray-200 rounded-full w-16"></div>
-                      ))}
+          {/* Loading Collections Grid */}
+          <section className="py-20">
+            <div className="container-custom">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[...Array(6)].map((_, index) => (
+                  <div key={index} className="card animate-pulse">
+                    <div className="relative overflow-hidden aspect-[4/3] bg-gray-200"></div>
+                    <div className="p-6 space-y-4">
+                      <div className="h-6 bg-gray-200 rounded"></div>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-gray-200 rounded"></div>
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      </div>
+                      <div className="flex gap-2">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="h-6 bg-gray-200 rounded-full w-16"></div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-      </div>
+          </section>
+        </div>
+      </>
     );
   }
 
   // Error state
   if (error) {
-    return (
+      return (
+    <>
+      <Metadata {...generateCollectionsMetadata()} />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
         {/* Hero Section with Background Image */}
         <section className="relative py-5 overflow-hidden h-[60vh]">
@@ -221,13 +228,16 @@ export default function CollectionsPage() {
           </div>
         </section>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      {/* Hero Section with Background Image */}
-      <section className="relative py-5 overflow-hidden h-[60vh]">
+    <>
+      <Metadata {...generateCollectionsMetadata()} />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+        {/* Hero Section with Background Image */}
+        <section className="relative py-5 overflow-hidden h-[60vh]">
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
@@ -422,5 +432,6 @@ export default function CollectionsPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }

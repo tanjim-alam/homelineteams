@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/category.controller');
-const { uploadCategory } = require('../middlewares/upload.middleware');
+const { uploadCategory, uploadCategoryText } = require('../middlewares/upload.middleware');
 
 const { authenticate, requireAdmin } = require('../middlewares/auth.middleware');
+
+
 
 // Public routes
 router.get('/', controller.getCategories);
@@ -13,10 +15,44 @@ router.get('/:slug/filter-options', controller.getCategoryFilterOptions);
 
 // Admin routes (require authentication and admin role)
 router.post('/', authenticate, requireAdmin, uploadCategory, controller.createCategory);
-router.put('/:id', authenticate, uploadCategory, controller.updateCategory);
+router.put('/:id', authenticate, requireAdmin, uploadCategory, controller.updateCategory);
 router.delete('/:id', authenticate, requireAdmin, controller.deleteCategory);
 router.post('/:categoryId/fields', authenticate, requireAdmin, controller.addCustomField);
 router.post('/:categoryId/variant-fields', authenticate, requireAdmin, controller.addVariantField);
+
+// Test route for metadata updates (temporary)
+router.post('/:id/test-metadata', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const Category = require('../models/Category');
+    
+    console.log('🧪 Testing direct metadata update for category:', id);
+    
+    const category = await Category.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          'metaData.title': 'Direct Test Title',
+          'metaData.description': 'Direct Test Description', 
+          'metaData.keywords': ['direct', 'test', 'metadata']
+        }
+      },
+      { new: true }
+    );
+    
+    if (!category) return res.status(404).json({ message: 'Category not found' });
+    
+    console.log('🧪 Test update successful:', category.metaData);
+    res.json({ 
+      message: 'Test metadata update successful',
+      metaData: category.metaData,
+      category 
+    });
+  } catch (err) {
+    console.error('Test metadata update failed:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;
 

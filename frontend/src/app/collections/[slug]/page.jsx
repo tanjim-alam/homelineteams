@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { ChevronLeft, Filter, Grid, List, Star, ShoppingCart, Heart, X, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import api from '@/services/api';
+import Metadata from '@/components/Metadata';
+import { generateCategoryMetadata, generateCategoryStructuredData } from '@/utils/metadata';
 
 export default function CategoryPage() {
   const params = useParams();
@@ -30,6 +32,11 @@ export default function CategoryPage() {
         
         // Fetch category details
         const categoryData = await api.getCategoryBySlug(slug);
+        console.log('=== FRONTEND CATEGORY DATA ===');
+        console.log('Category data received:', categoryData);
+        console.log('Category metaData:', categoryData?.metaData);
+        console.log('Category metaData type:', typeof categoryData?.metaData);
+        console.log('Category metaData keys:', categoryData?.metaData ? Object.keys(categoryData.metaData) : 'No metaData');
         setCategory(categoryData);
         
         // Fetch filter options for this category
@@ -88,10 +95,16 @@ export default function CategoryPage() {
     if (category && !loading) {
       const fetchProducts = async () => {
         try {
+          console.log('=== FRONTEND FILTER DEBUG ===');
+          console.log('Fetching products with filters:', { sort: sortBy, ...filters });
+          console.log('Category slug:', slug);
+          
           const productsData = await api.getCategoryProducts(slug, {
             sort: sortBy,
             ...filters
           });
+          
+          console.log('Products received:', productsData);
           setProducts(productsData);
         } catch (err) {
           console.error('Error fetching products with filters:', err);
@@ -218,10 +231,16 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Metadata 
+        {...generateCategoryMetadata(category)}
+        structuredData={generateCategoryStructuredData(category)}
+        canonicalUrl={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/collections/${slug}`}
+      />
+      <div className="min-h-screen bg-gray-50">
 
       {/* Category Header with Background Image */}
-      <div className="relative bg-white overflow-hidden h-[60vh]">
+      <div className="relative bg-white overflow-hidden h-[50vh] min-h-[400px]">
         {/* Background Image */}
         <div className="absolute inset-0">
           {category?.image ? (
@@ -236,66 +255,62 @@ export default function CategoryPage() {
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary-100 via-pink-100 to-purple-100"></div>
           )}
-          {/* Breadcrumb */}
-      <div className="bg-white border-b">
-        <div className="container-custom py-4">
-          <nav className="flex items-center space-x-2 text-sm text-gray-500">
-            <Link href="/" className="hover:text-primary-600">Home</Link>
-            <ChevronLeft className="w-4 h-4" />
-            <Link href="/collections" className="hover:text-primary-600">Collections</Link>
-            <ChevronLeft className="w-4 h-4" />
-            <span className="text-gray-900 font-medium">{category?.name}</span>
-          </nav>
-        </div>
-      </div>
+          
           {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/50"></div>
+          <div className="absolute inset-0 bg-black/40"></div>
           {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-900/30 via-transparent to-purple-900/30"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-900/20 via-transparent to-purple-900/20"></div>
         </div>
         
         {/* Floating decorative elements */}
         <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-primary-100/20 to-pink-100/20 rounded-full mix-blend-overlay filter blur-3xl opacity-60"></div>
-          <div className="absolute bottom- right-10 w-72 h-72 bg-gradient-to-r from-blue-100/20 to-purple-100/20 rounded-full mix-blend-overlay filter blur-3xl opacity-60"></div>
+          <div className="absolute bottom-20 right-10 w-72 h-72 bg-gradient-to-r from-blue-100/20 to-purple-100/20 rounded-full mix-blend-overlay filter blur-3xl opacity-60"></div>
         </div>
         
-        <div className="relative z-10 container-custom">
+        <div className="relative z-10 container-custom h-full flex flex-col justify-center">
           <div className="text-center">
-            
+            {/* Breadcrumb */}
+            <nav className="flex items-center justify-center space-x-2 text-sm text-white/80 mb-6">
+              <Link href="/" className="hover:text-white transition-colors">Home</Link>
+              <ChevronLeft className="w-4 h-4" />
+              <Link href="/collections" className="hover:text-white transition-colors">Collections</Link>
+              <ChevronLeft className="w-4 h-4" />
+              <span className="text-white font-medium">{category?.name}</span>
+            </nav>
             
             {/* Category Name */}
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-3 drop-shadow-lg pt-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
               {category?.name}
             </h1>
             
             {/* Category Description */}
-            <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto mb-3 leading-relaxed drop-shadow-md">
+            <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto mb-6 leading-relaxed drop-shadow-md">
               {category?.description || `Explore our amazing collection of ${category?.name?.toLowerCase()} products`}
             </p>
             
             {/* Product Count and Stats */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-white/90">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 text-white/90">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-lg font-semibold">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span className="text-sm md:text-base font-medium">
                   {products.length} product{products.length !== 1 ? 's' : ''} available
                 </span>
               </div>
               
               {filterOptions?.priceRange && (
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                  <span className="text-lg">
-                    Price: ₹{filterOptions.priceRange.min} - ₹{filterOptions.priceRange.max}
+                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                  <span className="text-sm md:text-base">
+                    ₹{filterOptions.priceRange.min} - ₹{filterOptions.priceRange.max}
                   </span>
                 </div>
               )}
               
               {filterOptions?.brands && filterOptions.brands.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                  <span className="text-lg">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                  <span className="text-sm md:text-base">
                     {filterOptions.brands.length} brand{filterOptions.brands.length !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -304,11 +319,11 @@ export default function CategoryPage() {
             
             {/* Category Features/Tags */}
             {category?.customFields && category.customFields.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-3 mt-8">
-                {category.customFields.slice(0, 6).map((field, index) => (
+              <div className="flex flex-wrap justify-center gap-2 mt-6">
+                {category.customFields.slice(0, 4).map((field, index) => (
                   <span 
                     key={index}
-                    className="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm font-medium border border-white/30"
+                    className="bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium border border-white/30"
                   >
                     {field.name}
                   </span>
@@ -320,32 +335,37 @@ export default function CategoryPage() {
       </div>
 
       {/* Mobile Filter Toggle */}
-      <div className="lg:hidden bg-white border-b">
-        <div className="container-custom py-4">
+      <div className="lg:hidden bg-white border-b sticky top-20 z-20">
+        <div className="container-custom py-3">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 text-gray-600 hover:text-primary-600 w-full justify-center"
+            className="flex items-center justify-center gap-2 text-gray-700 hover:text-primary-600 w-full py-2 px-4 bg-gray-50 rounded-lg border transition-all duration-200 hover:bg-gray-100"
           >
             <Filter className="w-4 h-4" />
-            Filters {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
+            <span className="font-medium">Filters</span>
+            {getActiveFiltersCount() > 0 && (
+              <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
+                {getActiveFiltersCount()}
+              </span>
+            )}
             {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container-custom py-8">
-        <div className="flex gap-8">
+      <div className="container-custom py-6 lg:py-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Left Sidebar Filters */}
           <div className={`lg:block ${showFilters ? 'block' : 'hidden'} lg:w-80 w-full`}>
-            <div className="bg-white rounded-xl shadow-sm border p-6 sticky top-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:sticky lg:top-6">
               {/* Filter Header */}
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
                 {getActiveFiltersCount() > 0 && (
                   <button
                     onClick={clearAllFilters}
-                    className="text-sm text-primary-600 hover:text-primary-700"
+                    className="text-sm text-primary-600 hover:text-primary-700 font-medium"
                   >
                     Clear All
                   </button>
@@ -354,36 +374,42 @@ export default function CategoryPage() {
 
               {/* Price Range Filter */}
               {filterOptions?.priceRange && (
-                <div className="border-b border-gray-200 pb-6 mb-6">
+                <div className="border-b border-gray-100 pb-6 mb-6">
                   <button
                     onClick={() => toggleFilterSection('price')}
-                    className="flex items-center justify-between w-full text-left mb-4"
+                    className="flex items-center justify-between w-full text-left mb-4 group"
                   >
-                    <span className="font-medium text-gray-900">Price Range</span>
-                    {expandedFilters.price ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Price Range</span>
+                    {expandedFilters.price ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                   </button>
                   
                   {expandedFilters.price && (
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <input
-                          type="number"
-                          placeholder="Min"
-                          min={filterOptions.priceRange.min}
-                          max={filterOptions.priceRange.max}
-                          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                          onChange={(e) => handlePriceRangeChange(e.target.value, filters.priceRange?.max)}
-                        />
-                        <input
-                          type="number"
-                          placeholder="Max"
-                          min={filterOptions.priceRange.min}
-                          max={filterOptions.priceRange.max}
-                          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                          onChange={(e) => handlePriceRangeChange(filters.priceRange?.min, e.target.value)}
-                        />
+                    <div className="space-y-4">
+                      <div className="flex gap-3">
+                        <div className="flex-1">
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Min Price</label>
+                          <input
+                            type="number"
+                            placeholder="Min"
+                            min={filterOptions.priceRange.min}
+                            max={filterOptions.priceRange.max}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                            onChange={(e) => handlePriceRangeChange(e.target.value, filters.priceRange?.max)}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Max Price</label>
+                          <input
+                            type="number"
+                            placeholder="Max"
+                            min={filterOptions.priceRange.min}
+                            max={filterOptions.priceRange.max}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                            onChange={(e) => handlePriceRangeChange(filters.priceRange?.min, e.target.value)}
+                          />
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500 text-center">
+                      <div className="text-xs text-gray-500 text-center bg-gray-50 rounded-lg py-2">
                         Range: ₹{filterOptions.priceRange.min} - ₹{filterOptions.priceRange.max}
                       </div>
                     </div>
@@ -393,26 +419,26 @@ export default function CategoryPage() {
 
               {/* Brand Filter */}
               {filterOptions?.brands && filterOptions.brands.length > 0 && (
-                <div className="border-b border-gray-200 pb-6 mb-6">
+                <div className="border-b border-gray-100 pb-6 mb-6">
                   <button
                     onClick={() => toggleFilterSection('brands')}
-                    className="flex items-center justify-between w-full text-left mb-4"
+                    className="flex items-center justify-between w-full text-left mb-4 group"
                   >
-                    <span className="font-medium text-gray-900">Brand</span>
-                    {expandedFilters.brands ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Brand</span>
+                    {expandedFilters.brands ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                   </button>
                   
                   {expandedFilters.brands && (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {filterOptions.brands.map((brand) => (
-                        <label key={brand} className="flex items-center">
+                        <label key={brand} className="flex items-center group cursor-pointer">
                           <input
                             type="checkbox"
                             checked={filters.brands?.includes(brand) || false}
                             onChange={() => handleBrandToggle(brand)}
-                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition-all duration-200"
                           />
-                          <span className="ml-2 text-sm text-gray-700">{brand}</span>
+                          <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">{brand}</span>
                         </label>
                       ))}
                     </div>
@@ -422,26 +448,26 @@ export default function CategoryPage() {
 
               {/* Rating Filter */}
               {filterOptions?.ratings && filterOptions.ratings.length > 0 && (
-                <div className="border-b border-gray-200 pb-6 mb-6">
+                <div className="border-b border-gray-100 pb-6 mb-6">
                   <button
                     onClick={() => toggleFilterSection('ratings')}
-                    className="flex items-center justify-between w-full text-left mb-4"
+                    className="flex items-center justify-between w-full text-left mb-4 group"
                   >
-                    <span className="font-medium text-gray-900">Rating</span>
-                    {expandedFilters.ratings ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Rating</span>
+                    {expandedFilters.ratings ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                   </button>
                   
                   {expandedFilters.ratings && (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {filterOptions.ratings.map((rating) => (
-                        <label key={rating} className="flex items-center">
+                        <label key={rating} className="flex items-center group cursor-pointer">
                           <input
                             type="checkbox"
                             checked={filters.ratings?.includes(rating) || false}
                             onChange={() => handleRatingToggle(rating)}
-                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition-all duration-200"
                           />
-                          <span className="ml-2 text-sm text-gray-700">
+                          <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
                             {rating}★ & above
                           </span>
                         </label>
@@ -453,26 +479,26 @@ export default function CategoryPage() {
 
               {/* Availability Filter */}
               {filterOptions?.availability && filterOptions.availability.length > 0 && (
-                <div className="border-b border-gray-200 pb-6 mb-6">
+                <div className="border-b border-gray-100 pb-6 mb-6">
                   <button
                     onClick={() => toggleFilterSection('availability')}
-                    className="flex items-center justify-between w-full text-left mb-4"
+                    className="flex items-center justify-between w-full text-left mb-4 group"
                   >
-                    <span className="font-medium text-gray-900">Availability</span>
-                    {expandedFilters.availability ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Availability</span>
+                    {expandedFilters.availability ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                   </button>
                   
                   {expandedFilters.availability && (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {filterOptions.availability.map((availability) => (
-                        <label key={availability} className="flex items-center">
+                        <label key={availability} className="flex items-center group cursor-pointer">
                           <input
                             type="checkbox"
                             checked={filters.availability?.includes(availability) || false}
                             onChange={() => handleAvailabilityToggle(availability)}
-                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition-all duration-200"
                           />
-                          <span className="ml-2 text-sm text-gray-700">{availability}</span>
+                          <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">{availability}</span>
                         </label>
                       ))}
                     </div>
@@ -485,30 +511,30 @@ export default function CategoryPage() {
                 <div className="pb-6">
                   <button
                     onClick={() => toggleFilterSection('importantFilters')}
-                    className="flex items-center justify-between w-full text-left mb-4"
+                    className="flex items-center justify-between w-full text-left mb-4 group"
                   >
-                    <span className="font-medium text-gray-900">Product Features</span>
-                    {expandedFilters.importantFilters ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Product Features</span>
+                    {expandedFilters.importantFilters ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                   </button>
                   
                   {expandedFilters.importantFilters && (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       {filterOptions.importantFilters.map((filter) => (
-                        <div key={filter.key} className="border-l-2 border-gray-200 pl-3">
-                          <h4 className="text-sm font-medium text-gray-800 mb-2">
+                        <div key={filter.key} className="border-l-2 border-primary-200 pl-4">
+                          <h4 className="text-sm font-semibold text-gray-800 mb-3">
                             {filter.name}
                             {filter.unit && <span className="text-gray-500 ml-1">({filter.unit})</span>}
                           </h4>
                           <div className="space-y-2">
                             {filter.options.map((option) => (
-                              <label key={option} className="flex items-center">
+                              <label key={option} className="flex items-center group cursor-pointer">
                                 <input
                                   type="checkbox"
                                   checked={filters[filter.key]?.includes(option) || false}
                                   onChange={() => handleImportantFilterToggle(filter.key, option)}
-                                  className="h-3 w-3 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                  className="h-3 w-3 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition-all duration-200"
                                 />
-                                <span className="ml-2 text-xs text-gray-600">{option}</span>
+                                <span className="ml-2 text-xs text-gray-600 group-hover:text-gray-800 transition-colors">{option}</span>
                               </label>
                             ))}
                           </div>
@@ -524,37 +550,49 @@ export default function CategoryPage() {
           {/* Right Content */}
           <div className="flex-1">
             {/* Sort and View Controls */}
-            <div className="bg-white rounded-xl shadow-sm border p-4 mb-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 {/* Results Count */}
                 <div className="text-sm text-gray-600">
-                  Showing {products.length} product{products.length !== 1 ? 's' : ''}
-                  {getActiveFiltersCount() > 0 && ` (${getActiveFiltersCount()} filter${getActiveFiltersCount() !== 1 ? 's' : ''} applied)`}
+                  Showing <span className="font-semibold text-gray-900">{products.length}</span> product{products.length !== 1 ? 's' : ''}
+                  {getActiveFiltersCount() > 0 && (
+                    <span className="text-primary-600 ml-1">
+                      ({getActiveFiltersCount()} filter{getActiveFiltersCount() !== 1 ? 's' : ''} applied)
+                    </span>
+                  )}
                 </div>
 
                 {/* Sort and View */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <select 
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                     value={sortBy}
                     onChange={(e) => handleSortChange(e.target.value)}
                   >
                     <option value="newest">Newest First</option>
                     <option value="price-low">Price: Low to High</option>
                     <option value="price-high">Price: High to Low</option>
-                    <option value="popular">Most Popular</option>
-                    <option value="rating">Highest Rated</option>
+                    <option value="name-asc">Name: A to Z</option>
+                    <option value="name-desc">Name: Z to A</option>
                   </select>
 
-                  <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                  <div className="flex border border-gray-200 rounded-lg overflow-hidden">
                     <button
-                      className={`p-2 ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600'}`}
+                      className={`p-2 transition-all duration-200 ${
+                        viewMode === 'grid' 
+                          ? 'bg-primary-600 text-white' 
+                          : 'bg-white text-gray-600 hover:bg-gray-50'
+                      }`}
                       onClick={() => setViewMode('grid')}
                     >
                       <Grid className="w-4 h-4" />
                     </button>
                     <button
-                      className={`p-2 ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600'}`}
+                      className={`p-2 transition-all duration-200 ${
+                        viewMode === 'list' 
+                          ? 'bg-primary-600 text-white' 
+                          : 'bg-white text-gray-600 hover:bg-gray-50'
+                      }`}
                       onClick={() => setViewMode('list')}
                     >
                       <List className="w-4 h-4" />
@@ -566,20 +604,20 @@ export default function CategoryPage() {
 
             {/* Products Grid */}
             {products.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border p-16 text-center">
-                <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-6 flex items-center justify-center">
-                  <ShoppingCart className="w-12 h-12 text-gray-400" />
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                <div className="w-20 h-20 bg-gray-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+                  <ShoppingCart className="w-10 h-10 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
-                <p className="text-gray-600 mb-6">Try adjusting your filters or browse other categories</p>
-                <Link href="/collections" className="btn-primary">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">No products found</h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">Try adjusting your filters or browse other categories to find what you're looking for.</p>
+                <Link href="/collections" className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-all duration-200 font-medium">
                   Browse All Categories
                 </Link>
               </div>
             ) : (
               <div className={`grid gap-6 ${
                 viewMode === 'grid' 
-                  ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3' 
                   : 'grid-cols-1'
               }`}>
                 {products.map((product) => (
@@ -591,5 +629,6 @@ export default function CategoryPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

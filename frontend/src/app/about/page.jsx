@@ -1,4 +1,6 @@
 import { Heart, Users, Award, Sparkles, CheckCircle, Star } from 'lucide-react';
+import Metadata from '@/components/Metadata';
+import { generateAboutMetadata } from '@/utils/metadata';
 
 export default function AboutPage() {
   const values = [
@@ -33,9 +35,11 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 bg-gradient-to-br from-primary-50 to-pink-50 relative overflow-hidden">
+    <>
+      <Metadata {...generateAboutMetadata()} />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+        {/* Hero Section */}
+        <section className="pt-32 pb-20 bg-gradient-to-br from-primary-50 to-pink-50 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-primary-100 to-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
           <div className="absolute bottom-20 right-10 w-72 h-72 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
@@ -240,5 +244,6 @@ export default function AboutPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }

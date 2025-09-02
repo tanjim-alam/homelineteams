@@ -48,6 +48,12 @@ export default function CategoriesPage() {
       ogImage: ''
     }
   })
+  
+  // Debug form state changes
+  useEffect(() => {
+    console.log('Form state changed:', form);
+    console.log('MetaData state:', form.metaData);
+  }, [form]);
 
   const [customFieldForm, setCustomFieldForm] = useState({
     name: '',
@@ -85,6 +91,7 @@ export default function CategoriesPage() {
     console.log('=== FORM SUBMISSION DEBUG ===')
     console.log('Form data:', form)
     console.log('Editing category:', editingCategory)
+    console.log('MetaData being sent:', form.metaData)
     
     const formData = new FormData()
 
@@ -95,9 +102,9 @@ export default function CategoriesPage() {
     formData.append('seoContent', form.seoContent)
 
     // Append SEO metadata
-    formData.append('metaData[title]', form.metaData.title)
-    formData.append('metaData[description]', form.metaData.description)
-    formData.append('metaData[keywords]', form.metaData.keywords)
+    formData.append('metaData[title]', form.metaData.title || '')
+    formData.append('metaData[description]', form.metaData.description || '')
+    formData.append('metaData[keywords]', form.metaData.keywords || '')
     if (form.metaData.ogImage) {
       formData.append('metaData[ogImage]', form.metaData.ogImage)
     }
@@ -113,6 +120,22 @@ export default function CategoriesPage() {
       console.log(`${key}:`, value instanceof File ? `File(${value.name}, ${value.size} bytes)` : value)
     }
     console.log('FormData size:', formData.entries().length, 'entries')
+    
+    // Additional debugging for metadata
+    console.log('=== METADATA DEBUG ===');
+    console.log('Form metaData object:', form.metaData);
+    console.log('FormData entries for metadata:');
+    console.log('- metaData[title]:', formData.get('metaData[title]'));
+    console.log('- metaData[description]:', formData.get('metaData[description]'));
+    console.log('- metaData[keywords]:', formData.get('metaData[keywords]'));
+    console.log('- metaData[ogImage]:', formData.get('metaData[ogImage]'));
+    
+    // Validate metadata fields
+    console.log('=== METADATA VALIDATION ===');
+    console.log('Title:', form.metaData.title);
+    console.log('Description:', form.metaData.description);
+    console.log('Keywords:', form.metaData.keywords);
+    console.log('OG Image:', form.metaData.ogImage);
 
     if (editingCategory) {
       console.log('Dispatching updateCategory with ID:', editingCategory._id)
@@ -127,6 +150,10 @@ export default function CategoriesPage() {
   }
 
   const handleEdit = (category) => {
+    console.log('=== HANDLE EDIT DEBUG ===');
+    console.log('Category being edited:', category);
+    console.log('Category metaData:', category.metaData);
+    
     setEditingCategory(category)
     setForm({
       name: category.name,
@@ -137,10 +164,24 @@ export default function CategoriesPage() {
       metaData: {
         title: category.metaData?.title || '',
         description: category.metaData?.description || '',
-        keywords: category.metaData?.keywords || '',
+        keywords: Array.isArray(category.metaData?.keywords) ? category.metaData.keywords.join(', ') : (category.metaData?.keywords || ''),
         ogImage: category.metaData?.ogImage || ''
       }
     })
+    
+    console.log('Form state set to:', {
+      name: category.name,
+      slug: category.slug,
+      description: category.description || '',
+      seoContent: category.seoContent || '',
+      metaData: {
+        title: category.metaData?.title || '',
+        description: category.metaData?.description || '',
+        keywords: Array.isArray(category.metaData?.keywords) ? category.metaData.keywords.join(', ') : (category.metaData?.keywords || ''),
+        ogImage: category.metaData?.ogImage || ''
+      }
+    });
+    
     setShowForm(true)
   }
 
@@ -192,7 +233,8 @@ export default function CategoriesPage() {
   }
 
   const resetForm = () => {
-    setForm({
+    console.log('=== RESET FORM ===');
+    const resetData = {
       name: '',
       slug: '',
       description: '',
@@ -204,8 +246,10 @@ export default function CategoriesPage() {
         keywords: '',
         ogImage: ''
       }
-    })
-    setEditingCategory(null)
+    };
+    console.log('Resetting form to:', resetData);
+    setForm(resetData);
+    setEditingCategory(null);
   }
 
   const handleImageChange = (e) => {
@@ -815,7 +859,7 @@ export default function CategoriesPage() {
                         )}
                         {category.metaData.keywords && (
                           <p className="text-xs text-blue-800">
-                            <strong>Keywords:</strong> {category.metaData.keywords}
+                            <strong>Keywords:</strong> {Array.isArray(category.metaData.keywords) ? category.metaData.keywords.join(', ') : category.metaData.keywords}
                           </p>
                         )}
                       </div>

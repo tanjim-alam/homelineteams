@@ -25,25 +25,29 @@ const uploadMultiple = multer({
   limits: { fileSize: 5 * 1024 * 1024 }
 }).array("images", 10);
 
-// 🔹 Category upload (main image + OG image)
+// 🔹 Category upload (main image + OG image + text fields)
 const uploadCategory = multer({
   storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }
 }).fields([
-  { name: "image", maxCount: 1 },               // Main image
-  { name: "metaData[ogImage]", maxCount: 1 }    // OG image
+  { name: "image", maxCount: 1 },
+  { name: "metaData[ogImage]", maxCount: 1 }
 ]);
+
+// 🔹 Category text-only upload (for metadata updates without files)
+const uploadCategoryText = (req, res, next) => {
+  // For text-only updates, we don't need multer
+  // The text fields will be available in req.body
+  next();
+};
 
 // 🔹 Product upload (multiple images + OG image)
 const uploadProduct = multer({
   storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }
-}).fields([
-  { name: "images", maxCount: 10 },             // Product gallery
-  { name: "metaData[ogImage]", maxCount: 1 }    // OG image
-]);
+}).any(); // Use .any() to handle all fields including text and files
 
 // 🔹 Debugging middleware (optional)
 const debugUpload = (req, res, next) => {
@@ -58,6 +62,7 @@ module.exports = {
   uploadSingle,
   uploadMultiple,
   uploadCategory,
+  uploadCategoryText,
   uploadProduct,
   debugUpload
 };

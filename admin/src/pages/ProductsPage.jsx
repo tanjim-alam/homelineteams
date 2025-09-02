@@ -284,7 +284,14 @@ export default function ProductsPage() {
       formData.append('variants', JSON.stringify(form.variants));
       formData.append('variantOptions', JSON.stringify(form.variantOptions));
       formData.append('dynamicFields', JSON.stringify(form.dynamicFields));
-      formData.append('metaData', JSON.stringify(form.metaData));
+      
+      // Append SEO metadata
+      formData.append('metaData[title]', form.metaData.title || '');
+      formData.append('metaData[description]', form.metaData.description || '');
+      formData.append('metaData[keywords]', form.metaData.keywords || '');
+      if (form.metaData.ogImage) {
+        formData.append('metaData[ogImage]', form.metaData.ogImage);
+      }
 
               // Handle images - only append if new images are selected
         if (form.mainImages && form.mainImages.length > 0) {
@@ -335,11 +342,11 @@ export default function ProductsPage() {
       variants: product.variants || [],
       variantOptions: product.variantOptions || {},
       dynamicFields: product.dynamicFields || {},
-      metaData: product.metaData || {
-        title: '',
-        description: '',
-        keywords: '',
-        ogImage: null
+      metaData: {
+        title: product.metaData?.title || '',
+        description: product.metaData?.description || '',
+        keywords: Array.isArray(product.metaData?.keywords) ? product.metaData.keywords.join(', ') : (product.metaData?.keywords || ''),
+        ogImage: product.metaData?.ogImage || null
       }
     });
 
@@ -1147,7 +1154,7 @@ export default function ProductsPage() {
                         <div className="col-span-1 md:col-span-2">
                           <h6 className="font-medium text-gray-900 mb-2">Variant {index + 1}</h6>
                           <div className="space-y-1">
-                            {Object.entries(variant.fields).map(([fieldSlug, value]) => {
+                            {variant.fields && Object.entries(variant.fields).map(([fieldSlug, value]) => {
                               const field = selectedCategory?.variantFields?.find(f => f.slug === fieldSlug);
                               return (
                                 <div key={fieldSlug} className="text-sm">
@@ -1267,6 +1274,76 @@ export default function ProductsPage() {
               </div>
             )}
 
+            {/* SEO Metadata */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">SEO Metadata</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Meta Title</label>
+                  <input
+                    type="text"
+                    value={form.metaData.title}
+                    onChange={(e) => setForm({
+                      ...form,
+                      metaData: { ...form.metaData, title: e.target.value }
+                    })}
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
+                    placeholder="SEO title for search engines"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Recommended: 50-60 characters</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Meta Description</label>
+                  <textarea
+                    value={form.metaData.description}
+                    onChange={(e) => setForm({
+                      ...form,
+                      metaData: { ...form.metaData, description: e.target.value }
+                    })}
+                    rows={3}
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
+                    placeholder="SEO description for search engines"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Recommended: 150-160 characters</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Meta Keywords</label>
+                  <input
+                    type="text"
+                    value={form.metaData.keywords}
+                    onChange={(e) => setForm({
+                      ...form,
+                      metaData: { ...form.metaData, keywords: e.target.value }
+                    })}
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
+                    placeholder="Keywords separated by commas"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Comma-separated keywords for SEO</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Open Graph Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0]
+                      if (file) {
+                        setForm({
+                          ...form,
+                          metaData: { ...form.metaData, ogImage: file }
+                        })
+                      }
+                    }}
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Image for social media sharing (1200x630px recommended)</p>
+                </div>
+              </div>
+            </div>
+
             {/* Form Buttons */}
             <div className="flex justify-end space-x-3">
               <button
@@ -1328,6 +1405,7 @@ export default function ProductsPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price & Offers</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SEO Metadata</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variants</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -1355,22 +1433,47 @@ export default function ProductsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {categories.find(c => c._id === product.categoryId)?.name || 'Unknown'}
                     </td>
-                                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div className="space-y-1">
+                        <div className="font-medium">₹{product.basePrice || product.price || 0}</div>
+                        {product.mrp && product.mrp > (product.basePrice || product.price) && (
+                          <div className="text-xs text-gray-500 line-through">MRP: ₹{product.mrp}</div>
+                        )}
+                        {product.discount && product.discount > 0 && (
+                          <div className="text-xs text-green-600 font-medium">{product.discount}% OFF</div>
+                        )}
+                        {product.hasVariants && product.variants && product.variants.length > 0 && (
+                          <div className="text-xs text-blue-600">
+                            {product.variants.length} variants with individual pricing
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {/* SEO Metadata Display */}
+                      {(product.metaData?.title || product.metaData?.description || product.metaData?.keywords) && (
                         <div className="space-y-1">
-                          <div className="font-medium">₹{product.basePrice || product.price || 0}</div>
-                          {product.mrp && product.mrp > (product.basePrice || product.price) && (
-                            <div className="text-xs text-gray-500 line-through">MRP: ₹{product.mrp}</div>
-                          )}
-                          {product.discount && product.discount > 0 && (
-                            <div className="text-xs text-green-600 font-medium">{product.discount}% OFF</div>
-                          )}
-                          {product.hasVariants && product.variants && product.variants.length > 0 && (
+                          {product.metaData.title && (
                             <div className="text-xs text-blue-600">
-                              {product.variants.length} variants with individual pricing
+                              <strong>Title:</strong> {product.metaData.title}
+                            </div>
+                          )}
+                          {product.metaData.description && (
+                            <div className="text-xs text-gray-600">
+                              <strong>Desc:</strong> {product.metaData.description.substring(0, 50)}...
+                            </div>
+                          )}
+                          {product.metaData.keywords && (
+                            <div className="text-xs text-green-600">
+                              <strong>Keywords:</strong> {Array.isArray(product.metaData.keywords) ? product.metaData.keywords.slice(0, 3).join(', ') : product.metaData.keywords.substring(0, 30)}...
                             </div>
                           )}
                         </div>
-                      </td>
+                      )}
+                      {!product.metaData?.title && !product.metaData?.description && !product.metaData?.keywords && (
+                        <div className="text-xs text-gray-400">No metadata</div>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {product.hasVariants ? (
                         <div className="flex items-center">

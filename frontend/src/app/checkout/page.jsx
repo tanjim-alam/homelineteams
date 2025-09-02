@@ -9,6 +9,8 @@ import {
   MapPin, Phone, Mail, User, Building, 
   CheckCircle, AlertCircle 
 } from 'lucide-react';
+import Metadata from '@/components/Metadata';
+import { generateCheckoutMetadata } from '@/utils/metadata';
 
 export default function CheckoutPage() {
   const { cartItems, getCartTotal, clearCart } = useCart();
@@ -56,15 +58,18 @@ export default function CheckoutPage() {
   // Redirect to cart if empty
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
-          <p className="text-gray-600 mb-6">Please add some products to your cart before checkout.</p>
-          <Link href="/cart" className="btn-primary px-6 py-3">
-            Go to Cart
-          </Link>
+      <>
+        <Metadata {...generateCheckoutMetadata()} />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
+            <p className="text-gray-600 mb-6">Please add some products to your cart before checkout.</p>
+            <Link href="/cart" className="btn-primary px-6 py-3">
+              Go to Cart
+            </Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -299,9 +304,11 @@ export default function CheckoutPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
+    <>
+      <Metadata {...generateCheckoutMetadata()} />
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white border-b">
         <div className="container-custom py-4">
           <nav className="flex items-center space-x-2 text-sm text-gray-500">
             <Link href="/" className="hover:text-primary-600">Home</Link>
@@ -483,5 +490,6 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
