@@ -328,8 +328,8 @@ export default function CategoriesPage() {
                 <FolderOpen className="w-5 h-5 text-blue-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">
-                {editingCategory ? 'Edit Category' : 'Add New Category'}
-              </h2>
+              {editingCategory ? 'Edit Category' : 'Add New Category'}
+            </h2>
             </div>
             <button
               onClick={() => {
@@ -371,14 +371,15 @@ export default function CategoriesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Description</label>
-                  <textarea
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Description (Rich Text)</label>
+                  <RichTextEditor
                     value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    rows={3}
-                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
-                    placeholder="Brief description of the category"
+                    onChange={(value) => setForm({ ...form, description: value })}
+                    placeholder="Enter a detailed description of the category with rich formatting"
                   />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Use the rich text editor to format your category description with headings, lists, links, and more.
+                  </p>
                 </div>
 
                 <div>
@@ -467,7 +468,6 @@ export default function CategoriesPage() {
                 value={form.seoContent}
                 onChange={(value) => setForm({ ...form, seoContent: value })}
                 placeholder="Enter rich HTML content for SEO. This content will be displayed on category pages and help with search engine rankings."
-                rows={8}
               />
               <p className="text-xs text-gray-500 mt-2">
                 Rich HTML content for SEO. This content will be displayed on category pages and help with search engine rankings.
@@ -506,8 +506,8 @@ export default function CategoriesPage() {
                 <Tag className="w-5 h-5 text-green-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">
-                Add Custom Field to {selectedCategory.name}
-              </h2>
+              Add Custom Field to {selectedCategory.name}
+            </h2>
             </div>
             <button
               onClick={() => setShowCustomFieldForm(false)}
@@ -645,8 +645,8 @@ export default function CategoriesPage() {
                 <Settings className="w-5 h-5 text-purple-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">
-                Add Variant Field to {selectedCategory.name}
-              </h2>
+              Add Variant Field to {selectedCategory.name}
+            </h2>
             </div>
             <button
               onClick={() => setShowVariantFieldForm(false)}
@@ -830,7 +830,10 @@ export default function CategoriesPage() {
                     </div>
 
                     {category.description && (
-                      <p className="text-gray-600 mb-3">{category.description}</p>
+                      <div 
+                        className="text-gray-600 mb-3 prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: category.description }}
+                      />
                     )}
 
                     {category.image && (

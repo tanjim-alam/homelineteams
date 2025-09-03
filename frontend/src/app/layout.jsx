@@ -2,6 +2,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BottomNavbar from '@/components/BottomNavbar';
+import QuickQuoteEstimator from '@/components/QuickQuoteEstimator';
 import { CartProvider } from '@/contexts/CartContext';
 
 export default function RootLayout({ children }) {
@@ -48,6 +49,7 @@ export default function RootLayout({ children }) {
           <main className="pb-20 lg:pb-0">{children}</main>
           <Footer />
           <BottomNavbar />
+          <QuickQuoteEstimator />
         </CartProvider>
       </body>
     </html>

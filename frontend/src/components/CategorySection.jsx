@@ -14,7 +14,6 @@ export default function CategorySection() {
     const fetchCategories = async () => {
       try {
         const data = await api.getCategories();
-        console.log('CategorySection - API Response:', data); // Debug log
         
         // Handle different possible data structures
         let categoriesData = [];
@@ -28,8 +27,7 @@ export default function CategorySection() {
           // If API returns { data: [...] }
           categoriesData = data.data;
         }
-        
-        console.log('CategorySection - Processed Categories:', categoriesData); // Debug log
+
         
         if (categoriesData.length > 0) {
           setCategories(categoriesData);
@@ -87,7 +85,6 @@ export default function CategorySection() {
           ]);
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
         // Fallback to sample data
         setCategories([
           {
@@ -147,7 +144,7 @@ export default function CategorySection() {
     fetchCategories();
   }, []);
 
-  console.log(categories);
+
 
   if (loading) {
     return (

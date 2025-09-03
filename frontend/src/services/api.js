@@ -24,7 +24,6 @@ class ApiService {
       
       return await response.json();
     } catch (error) {
-      console.error('API request failed:', error);
       throw error;
     }
   }
@@ -66,9 +65,6 @@ class ApiService {
     // Convert complex objects to JSON strings for backend
     const processedParams = { ...params };
     
-    console.log('=== API SERVICE DEBUG ===');
-    console.log('Original params:', params);
-    
     if (params.priceRange) {
       processedParams.priceRange = JSON.stringify(params.priceRange);
     }
@@ -91,10 +87,7 @@ class ApiService {
       }
     });
     
-    console.log('Processed params:', processedParams);
-    
     const queryString = new URLSearchParams({ categoryId, ...processedParams }).toString();
-    console.log('Final URL:', `/api/products?${queryString}`);
     
     return this.request(`/api/products?${queryString}`);
   }
@@ -111,13 +104,11 @@ class ApiService {
       const latest = await this.request(`/api/products?limit=${limit}`);
       return latest || [];
     } catch (error) {
-      console.warn('Featured products failed, falling back to latest products:', error);
       // Final fallback - get all products and limit on frontend
       try {
         const allProducts = await this.request('/api/products');
         return Array.isArray(allProducts) ? allProducts.slice(0, limit) : [];
       } catch (fallbackError) {
-        console.error('All fallbacks failed:', fallbackError);
         return [];
       }
     }

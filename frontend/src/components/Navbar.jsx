@@ -29,7 +29,6 @@ export default function Navbar() {
     const fetchCategories = async () => {
       try {
         const data = await api.getCategories();
-        console.log('Navbar - API Response:', data); // Debug log
         
         // Handle different possible data structures
         let categoriesData = [];
@@ -43,8 +42,7 @@ export default function Navbar() {
           // If API returns { data: [...] }
           categoriesData = data.data;
         }
-        
-        console.log('Navbar - Processed Categories:', categoriesData); // Debug log
+
         
         if (categoriesData.length > 0) {
           setCategories(categoriesData);
@@ -58,7 +56,6 @@ export default function Navbar() {
           ]);
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
         // Fallback to default categories
         setCategories([
           { slug: 'curtains', name: 'Curtains' },
@@ -133,7 +130,7 @@ export default function Navbar() {
                 ))}
               </div>
             </div>
-            <Link href="/interiordesign" className="text-gray-700 hover:text-primary-600 transition-colors">
+            <Link href="/interior-design" className="text-gray-700 hover:text-primary-600 transition-colors">
               Interior Design
             </Link>
             <Link href="/about" className="text-gray-700 hover:text-primary-600 transition-colors">
@@ -221,7 +218,7 @@ export default function Navbar() {
                   </Link>
                 ))}
               </div>
-              <Link href="/interiordesign" className="text-gray-700 hover:text-primary-600 transition-colors">
+              <Link href="/interior-design" className="text-gray-700 hover:text-primary-600 transition-colors">
                 Interior Design
               </Link>
               <Link href="/about" className="text-gray-700 hover:text-primary-600 transition-colors">

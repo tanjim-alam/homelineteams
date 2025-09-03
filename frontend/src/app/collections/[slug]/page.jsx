@@ -32,11 +32,6 @@ export default function CategoryPage() {
         
         // Fetch category details
         const categoryData = await api.getCategoryBySlug(slug);
-        console.log('=== FRONTEND CATEGORY DATA ===');
-        console.log('Category data received:', categoryData);
-        console.log('Category metaData:', categoryData?.metaData);
-        console.log('Category metaData type:', typeof categoryData?.metaData);
-        console.log('Category metaData keys:', categoryData?.metaData ? Object.keys(categoryData.metaData) : 'No metaData');
         setCategory(categoryData);
         
         // Fetch filter options for this category
@@ -63,7 +58,6 @@ export default function CategoryPage() {
         setProducts(productsData);
         
       } catch (err) {
-        console.error('Error fetching category data:', err);
         setError(err.message);
         
         // Fallback data
@@ -95,19 +89,14 @@ export default function CategoryPage() {
     if (category && !loading) {
       const fetchProducts = async () => {
         try {
-          console.log('=== FRONTEND FILTER DEBUG ===');
-          console.log('Fetching products with filters:', { sort: sortBy, ...filters });
-          console.log('Category slug:', slug);
-          
           const productsData = await api.getCategoryProducts(slug, {
             sort: sortBy,
             ...filters
           });
           
-          console.log('Products received:', productsData);
           setProducts(productsData);
         } catch (err) {
-          console.error('Error fetching products with filters:', err);
+          // Handle error silently or show user-friendly message
         }
       };
       

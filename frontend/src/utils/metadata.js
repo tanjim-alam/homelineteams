@@ -1,9 +1,6 @@
 // Utility functions for generating dynamic SEO metadata
 
 export const generateProductMetadata = (product) => {
-  console.log('=== GENERATE PRODUCT METADATA DEBUG ===');
-  console.log('Input product:', product);
-  console.log('Product metaData:', product?.metaData);
   
   if (!product) return getDefaultMetadata();
   
@@ -30,9 +27,6 @@ export const generateProductMetadata = (product) => {
 };
 
 export const generateCategoryMetadata = (category) => {
-  // console.log('=== GENERATE CATEGORY METADATA DEBUG ===');
-  // console.log('Input category:', category);
-  // console.log('Category metaData:', category?.metaData);
   
   if (!category) return getDefaultMetadata();
   

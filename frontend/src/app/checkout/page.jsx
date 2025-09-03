@@ -50,7 +50,6 @@ export default function CheckoutPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle checkout submission
-    console.log('Checkout submitted:', formData);
     clearCart(); // Clear cart after successful order
     setActiveStep(3);
   };

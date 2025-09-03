@@ -17,12 +17,8 @@ export default function Metadata({
   const keywordString = Array.isArray(keywords) ? keywords.join(', ') : keywords;
   
   useEffect(() => {
-    console.log('=== METADATA COMPONENT DEBUG ===');
-    console.log('Received props:', { title, description, keywords, ogImage, ogTitle, ogDescription, structuredData, canonicalUrl, noIndex });
-    
     // Update document title
     if (title) {
-      console.log('Updating title to:', title);
       document.title = title;
     }
     

@@ -31,7 +31,6 @@ export default function CollectionsPage() {
                 features: generateCategoryFeatures(category)
               };
             } catch (err) {
-              console.warn(`Could not fetch products for category ${category.name}:`, err);
               return {
                 ...category,
                 productCount: 0,
@@ -43,7 +42,6 @@ export default function CollectionsPage() {
 
         setCategories(categoriesWithCounts);
       } catch (err) {
-        console.error('Error fetching categories:', err);
         setError(err.message || 'Failed to load collections');
       } finally {
         setLoading(false);

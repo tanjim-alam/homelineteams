@@ -16,10 +16,8 @@ export default function FeaturedProducts() {
       try {
         setLoading(true);
         const data = await api.getFeaturedProducts(8);
-        console.log('Featured products fetched:', { count: data?.length, data });
         setProducts(data || []);
       } catch (err) {
-        console.error('Error fetching featured products:', err);
         setError(err.message);
         // Fallback to sample data with proper structure for new ProductCard
       } finally {
@@ -60,7 +58,7 @@ export default function FeaturedProducts() {
   }
 
   if (error) {
-    console.error('Featured products loading error:', error);
+    // Handle error silently
   }
 
   return (

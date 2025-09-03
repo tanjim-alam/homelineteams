@@ -67,11 +67,10 @@ export default function ProductDetailPage() {
               setIsWishlisted(isInWishlist(productData._id));
             }
           } catch (categoryErr) {
-            console.warn('Could not fetch category:', categoryErr);
+            // Category fetch failed, continue without category data
           }
         }
       } catch (err) {
-        console.error('Error fetching product:', err);
         setError(err.message || 'Something went wrong');
       } finally {
         setLoading(false);

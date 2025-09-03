@@ -41,7 +41,6 @@ function SearchContent() {
       
       setProducts(results);
     } catch (err) {
-      console.error('Search error:', err);
       setError(err.message);
       setProducts([]);
     } finally {
