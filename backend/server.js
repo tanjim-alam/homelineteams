@@ -28,7 +28,7 @@ app.use(helmet());
 
 // CORS configuration - more explicit for credentials
 const corsOptions = {
-	origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:4173'],
+	origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:4173', "https://homelineteams.vercel.app"],
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
