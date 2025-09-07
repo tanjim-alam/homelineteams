@@ -37,6 +37,8 @@ export default function ProductsPage() {
 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [existingImages, setExistingImages] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
   const [variantForm, setVariantForm] = useState({
     fields: {},
@@ -372,6 +374,40 @@ export default function ProductsPage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedProducts.length === 0) return;
+    
+    const confirmMessage = `Are you sure you want to delete ${selectedProducts.length} product(s)? This action cannot be undone.`;
+    if (window.confirm(confirmMessage)) {
+      try {
+        const deletePromises = selectedProducts.map(id => apiClient.delete(`/api/products/${id}`));
+        await Promise.all(deletePromises);
+        setSelectedProducts([]);
+        setShowBulkActions(false);
+        fetchProducts();
+      } catch (err) {
+        console.log(err);
+        setError('Failed to delete some products');
+      }
+    }
+  };
+
+  const handleProductSelect = (productId, isSelected) => {
+    if (isSelected) {
+      setSelectedProducts(prev => [...prev, productId]);
+    } else {
+      setSelectedProducts(prev => prev.filter(id => id !== productId));
+    }
+  };
+
+  const handleSelectAll = (isSelected) => {
+    if (isSelected) {
+      setSelectedProducts(products.map(p => p._id));
+    } else {
+      setSelectedProducts([]);
+    }
+  };
+
   const addVariant = () => {
     const selectedCategory = categories.find(cat => cat._id === form.categoryId);
     if (!selectedCategory || !selectedCategory.variantFields) {
@@ -530,16 +566,27 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      {/* Modern Header */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-50">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Product Management</h1>
+              <p className="text-gray-600">Manage your product catalog with ease</p>
+            </div>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
         >
           <Plus size={20} />
-          Add Product
+              Add New Product
         </button>
+          </div>
+        </div>
       </div>
+
+      <div className="py-6 space-y-6">
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -563,143 +610,224 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Product Form */}
+      {/* Modern Product Form */}
       {showForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
+        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden mb-6">
+          <div className="p-6 border-b border-gray-100/50 bg-gradient-to-r from-gray-50/50 to-white/50">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
               {editingProduct ? 'Edit Product' : 'Add New Product'}
             </h2>
+                <p className="text-gray-600 mt-1">
+                  {editingProduct ? 'Update your product information' : 'Create a new product for your catalog'}
+                </p>
+              </div>
             <button
               onClick={() => {
                 setShowForm(false);
                 resetForm();
               }}
-              className="text-gray-400 hover:text-gray-600"
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
+          <div className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Basic Information Section */}
+              <div className="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-2xl p-6 border border-blue-100/50">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Basic Information</h3>
+                </div>
+                
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Category *
+                    </label>
                 <select
                   value={form.categoryId}
                   onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white"
                   required
                 >
-                  <option value="">Select Category</option>
+                      <option value="">Choose a category</option>
                   {categories.map((category) => (
                     <option key={category._id} value={category._id}>
                       {category.name}
                     </option>
                   ))}
                 </select>
+                    <p className="text-xs text-gray-500">Select the category that best fits your product</p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Product Name *
+                    </label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   onBlur={() => generateSlug(form.name)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white"
+                      placeholder="Enter your product name"
                   required
                 />
+                    <p className="text-xs text-gray-500">This will be the main title of your product</p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Product Slug *</label>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Product URL (Slug) *
+                    </label>
                 <input
                   type="text"
                   value={form.slug}
                   onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white"
+                      placeholder="product-url-slug"
                   required
                 />
+                    <p className="text-xs text-gray-500">This creates the URL for your product page (auto-generated from name)</p>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Base Price (Starting Price) *</label>
+              {/* Pricing Section */}
+              <div className="bg-gradient-to-r from-green-50/50 to-emerald-50/50 rounded-2xl p-6 border border-green-100/50">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Pricing & Offers</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Selling Price *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 text-sm">₹</span>
+                      </div>
                 <input
                   type="number"
                   value={form.basePrice}
                   onChange={(e) => setForm({ ...form, basePrice: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full border-2 border-gray-200 rounded-xl pl-8 pr-4 py-3 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 bg-white"
+                        placeholder="0"
                   required
-                  placeholder="Starting price for variants"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  This is the base price. Individual variant prices will be set below.
-                </p>
+                    </div>
+                    <p className="text-xs text-gray-500">The price customers will pay</p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">MRP (Maximum Retail Price)</label>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      MRP (Optional)
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 text-sm">₹</span>
+                      </div>
                 <input
                   type="number"
                   value={form.mrp}
                   onChange={(e) => setForm({ ...form, mrp: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter MRP if different from base price"
+                        className="w-full border-2 border-gray-200 rounded-xl pl-8 pr-4 py-3 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 bg-white"
+                        placeholder="0"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Optional: Set MRP for products without variants or as default for all variants.
-                </p>
+                    </div>
+                    <p className="text-xs text-gray-500">Original price before discount</p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Discount Percentage (%)</label>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Discount % (Optional)
+                    </label>
+                    <div className="relative">
                 <input
                   type="number"
                   value={form.discount}
                   onChange={(e) => setForm({ ...form, discount: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter discount percentage (0-100)"
+                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 bg-white"
+                        placeholder="0"
                   min="0"
                   max="100"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Optional: Set discount for products without variants or as default for all variants.
-                </p>
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 text-sm">%</span>
               </div>
+                </div>
+                    <p className="text-xs text-gray-500">Percentage off MRP</p>
+              </div>
+            </div>
 
-              {/* Pricing Information */}
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h4 className="text-sm font-medium text-blue-900 mb-2">💡 Pricing Strategy</h4>
-                <div className="text-xs text-blue-800 space-y-1">
-                  <p><strong>Products without variants:</strong> Use main product MRP and discount</p>
-                  <p><strong>Products with variants:</strong> Set individual pricing for each variant combination</p>
-                  <p><strong>Base Price:</strong> Starting price for variants or main product price</p>
-                  <p><strong>MRP:</strong> Maximum Retail Price (optional)</p>
-                  <p><strong>Discount:</strong> Percentage off MRP (optional)</p>
+                {/* Pricing Help */}
+                <div className="mt-6 p-4 bg-green-50 rounded-xl border border-green-200">
+                  <div className="flex items-start gap-3">
+                    <div className="p-1 bg-green-100 rounded">
+                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+            <div>
+                      <h4 className="font-semibold text-green-900 text-sm">Pricing Tips</h4>
+                      <div className="text-xs text-green-800 mt-1 space-y-1">
+                        <p>• <strong>Simple products:</strong> Just set the selling price</p>
+                        <p>• <strong>With offers:</strong> Set MRP and discount to show savings</p>
+                        <p>• <strong>With variants:</strong> Set individual prices for each variant</p>
+                      </div>
+                    </div>
                 </div>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              {/* Description & Images Section */}
+              <div className="bg-gradient-to-r from-purple-50/50 to-pink-50/50 rounded-2xl p-6 border border-purple-100/50">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Description & Images</h3>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Product Description
+                    </label>
               <textarea
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Product description..."
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 bg-white"
+                      placeholder="Describe your product in detail. What makes it special? What are its key features?"
               />
+                    <p className="text-xs text-gray-500">Help customers understand what they're buying</p>
             </div>
 
-            {/* Product Images Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
                 Product Images {!editingProduct && '*'}
               </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-purple-400 transition-colors duration-200">
               <input
                 key={editingProduct ? `edit-${editingProduct._id}` : 'new-product'}
                 type="file"
@@ -709,31 +837,55 @@ export default function ProductsPage() {
                   const files = Array.from(e.target.files);
                   setForm({ ...form, mainImages: files });
                 }}
-                className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="hidden"
+                        id="image-upload"
                 required={!editingProduct}
               />
+                      <label htmlFor="image-upload" className="cursor-pointer">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {editingProduct ? 'Click to add new images' : 'Click to upload product images'}
+                            </p>
               <p className="text-xs text-gray-500 mt-1">
                 {editingProduct ? 
-                  'Select new images to replace existing ones (optional)' : 
-                  'Select multiple images for the product gallery'
+                                'Replace existing images (optional)' : 
+                                'Upload multiple images for your product gallery'
                 }
               </p>
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                    
               {editingProduct && existingImages && existingImages.length > 0 && (
-                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-600 mb-2">Current images:</p>
-                  <div className="flex flex-wrap gap-2">
+                      <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <p className="text-sm font-medium text-gray-700 mb-3">Current images:</p>
+                        <div className="flex flex-wrap gap-3">
                     {existingImages.map((img, index) => (
-                      <div key={index} className="relative">
+                            <div key={index} className="relative group">
                         <img 
                           src={img} 
                           alt={`Current image ${index + 1}`} 
-                          className="w-16 h-16 object-cover rounded border"
+                                className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200"
                         />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all duration-200 flex items-center justify-center">
+                                <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  Current
+                                </span>
+                              </div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
+                  </div>
+                </div>
             </div>
 
             {/* Custom Fields based on Category */}
@@ -1274,12 +1426,50 @@ export default function ProductsPage() {
               </div>
             )}
 
-            {/* SEO Metadata */}
+            {/* SEO Metadata - Collapsible */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">SEO Metadata</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <details className="group">
+                <summary className="flex items-center justify-between cursor-pointer p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Meta Title</label>
+                      <h3 className="text-lg font-semibold text-gray-900">Search Engine Optimization (SEO)</h3>
+                      <p className="text-sm text-gray-600">Help customers find your product online</p>
+                    </div>
+                  </div>
+                  <div className="p-2 bg-white rounded-lg shadow-sm group-open:rotate-180 transition-transform duration-200">
+                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </summary>
+                
+                <div className="mt-6 p-6 bg-gray-50/50 rounded-xl border border-gray-200">
+                  <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-start gap-3">
+                      <div className="p-1 bg-blue-100 rounded">
+                        <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-blue-900 text-sm">Why SEO matters</h4>
+                        <p className="text-xs text-blue-800 mt-1">
+                          Good SEO helps your products appear in Google search results, bringing more customers to your store.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">
+                        Search Title *
+                      </label>
                   <input
                     type="text"
                     value={form.metaData.title}
@@ -1287,14 +1477,22 @@ export default function ProductsPage() {
                       ...form,
                       metaData: { ...form.metaData, title: e.target.value }
                     })}
-                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
-                    placeholder="SEO title for search engines"
-                  />
-                  <p className="text-xs text-gray-500 mt-2">Recommended: 50-60 characters</p>
+                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white"
+                        placeholder="e.g., Premium Wooden Dining Table - Modern Design"
+                        maxLength={60}
+                      />
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>How your product appears in Google</span>
+                        <span className={form.metaData.title.length > 60 ? 'text-red-500' : 'text-green-500'}>
+                          {form.metaData.title.length}/60
+                        </span>
+                      </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Meta Description</label>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">
+                        Search Description *
+                      </label>
                   <textarea
                     value={form.metaData.description}
                     onChange={(e) => setForm({
@@ -1302,14 +1500,22 @@ export default function ProductsPage() {
                       metaData: { ...form.metaData, description: e.target.value }
                     })}
                     rows={3}
-                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
-                    placeholder="SEO description for search engines"
-                  />
-                  <p className="text-xs text-gray-500 mt-2">Recommended: 150-160 characters</p>
+                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white"
+                        placeholder="Brief description that appears under your product in search results"
+                        maxLength={160}
+                      />
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>Description shown in search results</span>
+                        <span className={form.metaData.description.length > 160 ? 'text-red-500' : 'text-green-500'}>
+                          {form.metaData.description.length}/160
+                        </span>
+                      </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Meta Keywords</label>
+                    <div className="md:col-span-2 space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">
+                        Keywords (Optional)
+                      </label>
                   <input
                     type="text"
                     value={form.metaData.keywords}
@@ -1317,186 +1523,279 @@ export default function ProductsPage() {
                       ...form,
                       metaData: { ...form.metaData, keywords: e.target.value }
                     })}
-                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
-                    placeholder="Keywords separated by commas"
+                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white"
+                        placeholder="wooden table, dining furniture, modern design, home decor"
                   />
-                  <p className="text-xs text-gray-500 mt-2">Comma-separated keywords for SEO</p>
+                      <p className="text-xs text-gray-500">
+                        Separate keywords with commas. These help Google understand what your product is about.
+                      </p>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Open Graph Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files[0]
-                      if (file) {
-                        setForm({
-                          ...form,
-                          metaData: { ...form.metaData, ogImage: file }
-                        })
-                      }
-                    }}
-                    className="w-full border border-gray-200 rounded-2xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-gray-50 focus:bg-white"
-                  />
-                  <p className="text-xs text-gray-500 mt-2">Image for social media sharing (1200x630px recommended)</p>
                 </div>
               </div>
+              </details>
             </div>
 
             {/* Form Buttons */}
-            <div className="flex justify-end space-x-3">
+              <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
                 onClick={() => {
                   setShowForm(false);
                   resetForm();
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={createLoading || updateLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-              >
-                {createLoading || updateLoading ? 'Saving...' : (editingProduct ? 'Update Product' : 'Create Product')}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 flex items-center gap-2"
+                >
+                  {createLoading || updateLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {editingProduct ? 'Update Product' : 'Create Product'}
+                    </>
+                  )}
               </button>
             </div>
           </form>
+          </div>
         </div>
       )}
 
-      {/* Products List */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Products ({Array.isArray(products) ? products.length : 0})
+                {/* Modern Products Table */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+          <div className="p-6 border-b border-gray-100/50 bg-gradient-to-r from-gray-50/50 to-white/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  Your Products
           </h3>
+                <p className="text-gray-600 mt-1">
+                  {Array.isArray(products) ? products.length : 0} products in your catalog
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-full">
+                  <Package className="w-4 h-4 text-blue-600" />
+                  <span className="text-blue-700 font-medium text-sm">
+                    {products.filter(p => p.hasVariants).length} with variants
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-full">
+                  <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-green-700 font-medium text-sm">
+                    {products.filter(p => p.metaData?.title).length} optimized
+                  </span>
+                </div>
+              </div>
+            </div>
         </div>
 
         {loading ? (
-          <div className="p-6 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading products...</p>
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600 font-medium">Loading your products...</p>
           </div>
         ) : !Array.isArray(products) || products.length === 0 ? (
-          <div className="p-6 text-center">
-            <div className="text-gray-400 mb-4">
-              <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
+            <div className="p-12 text-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <Package className="w-12 h-12 text-blue-600" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600 mb-4">Get started by creating your first product.</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">No products yet</h3>
+              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                Start building your product catalog by adding your first product. It's easy and takes just a few minutes!
+              </p>
             <button
               onClick={() => setShowForm(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 flex items-center gap-3 mx-auto"
             >
-              Create Product
+                <Plus size={20} />
+                Create Your First Product
             </button>
           </div>
         ) : (
+            <>
+              {/* Bulk Actions Bar */}
+              {selectedProducts.length > 0 && (
+                <div className="bg-blue-50 border-b border-blue-200 px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <span className="text-blue-600 font-semibold text-sm">
+                            {selectedProducts.length}
+                          </span>
+                        </div>
+                        <span className="text-blue-900 font-medium">
+                          {selectedProducts.length} product{selectedProducts.length !== 1 ? 's' : ''} selected
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          setSelectedProducts([]);
+                          setShowBulkActions(false);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        Clear Selection
+                      </button>
+                      <button
+                        onClick={handleBulkDelete}
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm font-medium flex items-center gap-2"
+                      >
+                        <Trash2 size={16} />
+                        Delete Selected
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price & Offers</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SEO Metadata</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variants</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          checked={selectedProducts.length === products.length && products.length > 0}
+                          onChange={(e) => handleSelectAll(e.target.checked)}
+                        />
+                        Product
+                      </div>
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Price & Offers
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Actions
+                    </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {products.map((product) => (
-                  <tr key={product._id}>
+                    <tr key={product._id} className="hover:bg-gray-50 transition-colors duration-200">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
+                        <div className="flex items-center gap-4">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            checked={selectedProducts.includes(product._id)}
+                            onChange={(e) => handleProductSelect(product._id, e.target.checked)}
+                          />
+                          <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0 h-12 w-12 rounded-xl overflow-hidden bg-gray-100">
                           {product.mainImages && product.mainImages.length > 0 ? (
-                            <img className="h-10 w-10 rounded-lg object-cover" src={product.mainImages[0]} alt={product.name} />
-                          ) : (
-                            <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                                <img 
+                                  className="h-12 w-12 object-cover" 
+                                  src={product.mainImages[0]} 
+                                  alt={product.name} 
+                                />
+                              ) : (
+                                <div className="h-12 w-12 flex items-center justify-center">
                               <ImageIcon size={20} className="text-gray-400" />
                             </div>
                           )}
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                          <div className="text-sm text-gray-500">{product.slug}</div>
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900 max-w-xs truncate">
+                                {product.name}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                ID: {product.slug}
+                              </div>
+                            </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {categories.find(c => c._id === product.categoryId)?.name || 'Unknown'}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {categories.find(c => c._id === product.categoryId)?.name || 'Uncategorized'}
+                        </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
-                        <div className="font-medium">₹{product.basePrice || product.price || 0}</div>
+                          <div className="text-sm font-semibold text-gray-900">
+                            ₹{product.basePrice || product.price || 0}
+                          </div>
                         {product.mrp && product.mrp > (product.basePrice || product.price) && (
-                          <div className="text-xs text-gray-500 line-through">MRP: ₹{product.mrp}</div>
+                            <div className="text-xs text-gray-500 line-through">
+                              MRP: ₹{product.mrp}
+                            </div>
                         )}
                         {product.discount && product.discount > 0 && (
-                          <div className="text-xs text-green-600 font-medium">{product.discount}% OFF</div>
-                        )}
-                        {product.hasVariants && product.variants && product.variants.length > 0 && (
-                          <div className="text-xs text-blue-600">
-                            {product.variants.length} variants with individual pricing
+                            <div className="text-xs text-green-600 font-medium">
+                              {product.discount}% OFF
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {/* SEO Metadata Display */}
-                      {(product.metaData?.title || product.metaData?.description || product.metaData?.keywords) && (
-                        <div className="space-y-1">
-                          {product.metaData.title && (
-                            <div className="text-xs text-blue-600">
-                              <strong>Title:</strong> {product.metaData.title}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex flex-col gap-1">
+                          {product.hasVariants && (
+                            <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full w-fit">
+                              <Package size={12} />
+                              {product.variants?.length || 0} variants
                             </div>
                           )}
-                          {product.metaData.description && (
-                            <div className="text-xs text-gray-600">
-                              <strong>Desc:</strong> {product.metaData.description.substring(0, 50)}...
+                          {product.metaData?.title && (
+                            <div className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full w-fit">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              SEO Ready
                             </div>
                           )}
-                          {product.metaData.keywords && (
-                            <div className="text-xs text-green-600">
-                              <strong>Keywords:</strong> {Array.isArray(product.metaData.keywords) ? product.metaData.keywords.slice(0, 3).join(', ') : product.metaData.keywords.substring(0, 30)}...
+                          {!product.hasVariants && !product.metaData?.title && (
+                            <div className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full w-fit">
+                              Basic
                             </div>
                           )}
                         </div>
-                      )}
-                      {!product.metaData?.title && !product.metaData?.description && !product.metaData?.keywords && (
-                        <div className="text-xs text-gray-400">No metadata</div>
-                      )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {product.hasVariants ? (
-                        <div className="flex items-center">
-                          <Package size={16} className="text-blue-600 mr-1" />
-                          {product.variants?.length || 0} variants
-                        </div>
-                      ) : (
-                        'No variants'
-                      )}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(product.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                        <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleEdit(product)}
-                          className="text-blue-600 hover:text-blue-900"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200 text-xs font-medium"
                         >
-                          <Edit size={16} />
+                            <Edit size={14} />
+                            Edit
                         </button>
                         <button
                           onClick={() => handleDelete(product._id)}
-                          className="text-red-600 hover:text-red-900"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors duration-200 text-xs font-medium"
                         >
-                          <Trash2 size={16} />
+                            <Trash2 size={14} />
+                            Delete
                         </button>
                       </div>
                     </td>
@@ -1505,7 +1804,9 @@ export default function ProductsPage() {
               </tbody>
             </table>
           </div>
+            </>
         )}
+        </div>
       </div>
     </div>
   );

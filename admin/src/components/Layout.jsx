@@ -12,7 +12,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  Settings
+  Settings,
+  Image
 } from 'lucide-react'
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -24,6 +25,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { path: '/categories', label: 'Categories', icon: FolderOpen },
     { path: '/products', label: 'Products', icon: Package },
     { path: '/orders', label: 'Orders', icon: ShoppingCart },
+    { path: '/hero-section', label: 'Hero Section', icon: Image },
   ]
 
   return (
@@ -108,7 +110,8 @@ const Header = ({ onMenuClick }) => {
       '/dashboard': 'Dashboard',
       '/categories': 'Categories',
       '/products': 'Products',
-      '/orders': 'Orders'
+      '/orders': 'Orders',
+      '/hero-section': 'Hero Section'
     }
     return titles[currentPath] || 'Admin Panel'
   }

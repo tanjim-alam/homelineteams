@@ -26,10 +26,38 @@ const orderSchema = new mongoose.Schema(
 		},
 		items: [orderItemSchema],
 		total: { type: Number, required: true },
+		subtotal: { type: Number, required: true },
+		shipping: { type: Number, default: 0 },
+		tax: { type: Number, default: 0 },
+		paymentMethod: { 
+			type: String, 
+			required: true, 
+			enum: ['card', 'upi', 'netbanking', 'wallet', 'cod'] 
+		},
+		paymentStatus: { 
+			type: String, 
+			default: 'pending', 
+			enum: ['pending', 'paid', 'failed', 'refunded'] 
+		},
+		paymentDetails: {
+			transactionId: { type: String },
+			paymentGateway: { type: String },
+			paidAt: { type: Date }
+		},
 		status: { type: String, default: 'pending', enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'] },
+		orderNumber: { type: String, unique: true },
 	},
 	{ timestamps: true }
 );
+
+// Generate order number before saving
+orderSchema.pre('save', async function(next) {
+	if (!this.orderNumber) {
+		const count = await this.constructor.countDocuments();
+		this.orderNumber = `ORD-${String(count + 1).padStart(6, '0')}`;
+	}
+	next();
+});
 
 module.exports = mongoose.model('Order', orderSchema);
 

@@ -4,19 +4,21 @@ import { ShoppingBag, Star, ArrowRight, CheckCircle, Sparkles, TrendingUp, Zap, 
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import MobileHero from './MobileHero';
+import HeroSlider from './HeroSlider';
+import { useHeroData } from '../hooks/useHeroData';
 
 const Hero = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { heroData, isLoading } = useHeroData();
 
-  // Background images for the sliding carousel
-  const backgroundImages = [
-    '/hero-bg-1.jpg', // Curtains and drapes
-    '/hero-bg-2.jpg', // Wallpapers and patterns
-    '/hero-bg-3.jpg', // Cushions and upholstery
-  ];
+  // Get active desktop background images from API data
+  const backgroundImages = (heroData.desktopBackgroundImages || []).filter(img => img && img.isActive);
 
   // Auto-slide background images
   useEffect(() => {
+    if (backgroundImages.length <= 1) return;
+    
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => 
         (prevIndex + 1) % backgroundImages.length
@@ -26,33 +28,57 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
 
+  // Show loading state while data is being fetched
+  if (isLoading) {
+    return (
+      <>
+        <MobileHero />
+        <section className="relative bg-gray-200 hidden md:flex min-h-screen items-center justify-center">
+          <div className="text-gray-600 text-lg">Loading hero section...</div>
+        </section>
+      </>
+    );
+  }
+
   return (
-    <section className="relative bg-white">
-      {/* Main Hero Banner with Sliding Background */}
-      <div className="relative min-h-screen flex items-center overflow-hidden">
+    <>
+      {/* Mobile Hero Section - Only visible on mobile devices */}
+      <MobileHero />
+      
+      {/* Desktop Hero Section - Hidden on mobile devices */}
+      <section className="relative bg-white hidden md:block">
+        {/* Main Hero Banner with Sliding Background */}
+        <div className="relative min-h-screen flex items-center overflow-hidden">
         {/* Sliding Background Images */}
         <div className="absolute inset-0">
-          {backgroundImages.map((image, index) => (
-            <div
-              key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
-            >
-              <div className="absolute inset-0 bg-black/40 z-10" /> {/* Dark overlay */}
-              <Image
-                src={image}
-                alt={`Hero background ${index + 1}`}
-                fill
-                className="object-cover"
-                priority={index === 0}
-              />
+          {backgroundImages.length > 0 ? (
+            backgroundImages.map((image, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <div className="absolute inset-0 bg-black/40 z-10" /> {/* Dark overlay */}
+                <Image
+                  src={image.imageUrl}
+                  alt={image.altText || `Hero background ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                />
+              </div>
+            ))
+          ) : (
+            // Fallback when no background images are available
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-700">
+              <div className="absolute inset-0 bg-black/40 z-10" />
             </div>
-          ))}
+          )}
         </div>
 
         {/* Content Overlay */}
-        <div className="relative z-20 container-custom py-4 px-4 sm:px-6 lg:px-8">
+        <div className="relative z-20 container-custom py-4 px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col lg:flex-row justify-between gap-8 lg:gap-12 items-center">
             
             {/* Left Content */}
@@ -69,7 +95,7 @@ const Hero = () => {
               
               {/* Main Heading */}
               <div className="space-y-4 lg:space-y-6">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
+                <h1 className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-white">
                   Transform Your Home with
                   <span className="block text-yellow-300">Premium Furnishings</span>
                 </h1>
@@ -111,58 +137,31 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* Right Hero Image */}
+            {/* Right Side - Hero Slider */}
             <div className="relative w-full lg:w-1/2 flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-sm sm:max-w-md bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-3 sm:p-4 transform hover:scale-105 transition-all duration-500">
-                <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-primary-100 via-pink-100 to-purple-100 rounded-lg flex items-center justify-center relative overflow-hidden">
-                  {/* Product Showcase */}
-                  <div className="text-center z-10">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-200 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
-                      <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-primary-600" />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-2">Premium Home Furnishings</h3>
-                    <p className="text-gray-600 text-xs sm:text-sm">Transform your space with style</p>
-                  </div>
-                  
-                  {/* Floating Elements */}
-                  <div className="absolute top-3 sm:top-4 right-3 sm:right-4 w-8 h-8 sm:w-12 sm:h-12 bg-white/30 rounded-full backdrop-blur-sm"></div>
-                  <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 w-6 h-6 sm:w-8 sm:h-8 bg-white/30 rounded-full backdrop-blur-sm"></div>
-                </div>
-                
-                {/* Stats Cards */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-3 sm:mt-4">
-                  <div className="text-center p-2 bg-gray-50 rounded-lg">
-                    <div className="text-xs sm:text-sm font-bold text-primary-600">2000+</div>
-                    <div className="text-xs text-gray-600">Designs</div>
-                  </div>
-                  <div className="text-center p-2 bg-gray-50 rounded-lg">
-                    <div className="text-xs sm:text-sm font-bold text-blue-600">1200+</div>
-                    <div className="text-xs text-gray-600">Colors</div>
-                  </div>
-                  <div className="text-center p-2 bg-gray-50 rounded-lg">
-                    <div className="text-xs sm:text-sm font-bold text-green-600">100%</div>
-                    <div className="text-xs text-gray-600">Customizable</div>
-                  </div>
-                </div>
+              <div className="w-full max-w-sm sm:max-w-md">
+                <HeroSlider isMobile={false} className="shadow-xl rounded-xl" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Background Image Navigation Dots */}
-        <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-2 sm:gap-3">
-          {backgroundImages.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentImageIndex(index)}
-              className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
-                index === currentImageIndex 
-                  ? 'bg-white scale-125' 
-                  : 'bg-white/50 hover:bg-white/75'
-              }`}
-            />
-          ))}
-        </div>
+        {backgroundImages.length > 1 && (
+          <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-2 sm:gap-3">
+            {backgroundImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentImageIndex(index)}
+                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
+                  index === currentImageIndex 
+                    ? 'bg-white scale-125' 
+                    : 'bg-white/50 hover:bg-white/75'
+                }`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 z-30">
@@ -171,8 +170,10 @@ const Hero = () => {
           </div>
         </div>
       </div>
+      </section>
 
-    </section>
+      
+    </>
   );
 };
 

@@ -1,15 +1,6 @@
 const cloudinary = require('cloudinary').v2;
 
 function configureCloudinary() {
-	// console.log('Configuring Cloudinary...');
-	// console.log('Cloud name:', process.env.CLOUDINARY_CLOUD_NAME || "dmz316wxm" ? 'Set' : 'Missing');
-	// console.log('API Key:', process.env.CLOUDINARY_API_KEY || "247179179471582" ? 'Set' : 'Missing');
-	// console.log('API Secret:', process.env.CLOUDINARY_API_SECRET || "VSv5o_M_axaKxwz-ktxT-inuoJo" ? 'Set' : 'Missing');
-	
-	// if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-	// 	console.error('Missing Cloudinary environment variables!');
-	// 	return;
-	// }
 	
 	cloudinary.config({
 		cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "dmz316wxm",

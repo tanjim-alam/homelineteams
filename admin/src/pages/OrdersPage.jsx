@@ -232,7 +232,7 @@ export default function OrdersPage() {
                         <div>
                           <p className="text-gray-600">Amount</p>
                           <p className="font-medium text-green-600 text-lg">
-                            ₹{order.totalAmount || 0}
+                            ₹{order.total || 0}
                           </p>
                         </div>
                         <div>
@@ -265,11 +265,11 @@ export default function OrdersPage() {
                         </div>
                       )}
 
-                      {order.shippingAddress && (
+                      {order.customer && (
                         <div className="mb-3">
                           <p className="text-sm text-gray-600 mb-1">Shipping Address:</p>
                           <p className="text-sm text-gray-700">
-                            {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
+                            {order.customer.address}, {order.customer.city}, {order.customer.state} {order.customer.zip}
                           </p>
                         </div>
                       )}
@@ -341,7 +341,13 @@ export default function OrdersPage() {
                     <h4 className="font-medium text-gray-900 mb-2">Order Information</h4>
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <p><span className="font-medium">Status:</span> <OrderStatusBadge status={currentOrder.status} /></p>
-                      <p><span className="font-medium">Total:</span> ₹{currentOrder.totalAmount || 0}</p>
+                      <p><span className="font-medium">Total:</span> ₹{currentOrder.total || 0}</p>
+                      <p><span className="font-medium">Payment Method:</span> {currentOrder.paymentMethod?.toUpperCase() || 'N/A'}</p>
+                      <p><span className="font-medium">Payment Status:</span> 
+                        <span className={`ml-1 ${currentOrder.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
+                          {currentOrder.paymentStatus?.toUpperCase() || 'PENDING'}
+                        </span>
+                      </p>
                       <p><span className="font-medium">Date:</span> {new Date(currentOrder.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
@@ -367,13 +373,13 @@ export default function OrdersPage() {
                   </div>
                 )}
 
-                {currentOrder.shippingAddress && (
+                {currentOrder.customer && (
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Shipping Address</h4>
                     <div className="bg-gray-50 p-3 rounded-lg">
-                      <p>{currentOrder.shippingAddress.street}</p>
-                      <p>{currentOrder.shippingAddress.city}, {currentOrder.shippingAddress.state} {currentOrder.shippingAddress.zipCode}</p>
-                      <p>{currentOrder.shippingAddress.country}</p>
+                      <p>{currentOrder.customer.address}</p>
+                      <p>{currentOrder.customer.city}, {currentOrder.customer.state} {currentOrder.customer.zip}</p>
+                      <p>{currentOrder.customer.country || 'India'}</p>
                     </div>
                   </div>
                 )}

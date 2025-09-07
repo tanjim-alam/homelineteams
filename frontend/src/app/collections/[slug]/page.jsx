@@ -32,6 +32,7 @@ export default function CategoryPage() {
         
         // Fetch category details
         const categoryData = await api.getCategoryBySlug(slug);
+        console.log("categoryData",categoryData);
         setCategory(categoryData);
         
         // Fetch filter options for this category
@@ -617,6 +618,20 @@ export default function CategoryPage() {
           </div>
         </div>
       </div>
+
+      {/* SEO Content Section */}
+      {category?.seoContent && (
+        <div className="bg-white border-t">
+          <div className="container-custom py-8 lg:py-12">
+            <div className="max-w-4xl mx-auto">
+              <div 
+                className="seo-content"
+                dangerouslySetInnerHTML={{ __html: category.seoContent }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </>
   );

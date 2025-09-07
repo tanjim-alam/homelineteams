@@ -11,12 +11,13 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const connectDatabase = require('./config/db');
 const { configureCloudinary } = require('./utils/cloudinary');
-const { uploadProduct, debugUpload, uploadCategory } = require('./middlewares/upload.middleware');
+const { uploadProduct, debugUpload, uploadCategory, uploadSingle } = require('./middlewares/upload.middleware');
 
 // Routes
 const categoryRoutes = require('./routes/category.routes');
 const productRoutes = require('./routes/product.routes');
 const orderRoutes = require('./routes/order.routes');
+const heroSectionRoutes = require('./routes/heroSection.routes');
 
 // Middlewares
 const { notFoundHandler, errorHandler } = require('./middlewares/error.middleware');
@@ -75,6 +76,24 @@ app.post('/api/test-upload', debugUpload, uploadProduct, (req, res) => {
 	});
 });
 
+// Hero section upload test endpoint
+app.post('/api/test-hero-upload', uploadSingle, (req, res) => {
+	console.log('=== HERO UPLOAD TEST ===');
+	console.log('File received:', req.file);
+	console.log('File size:', req.file?.size);
+	console.log('File mimetype:', req.file?.mimetype);
+	
+	res.json({
+		message: 'Hero upload test successful',
+		file: req.file ? {
+			fieldname: req.file.fieldname,
+			originalname: req.file.originalname,
+			mimetype: req.file.mimetype,
+			size: req.file.size
+		} : 'No file'
+	});
+});
+
 // Environment check endpoint
 app.get('/api/env-check', (req, res) => {
 	res.json({
@@ -94,6 +113,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/hero-section', heroSectionRoutes);
 
 // 404 and error handlers
 app.use(notFoundHandler);

@@ -20,6 +20,8 @@ exports.createProduct = async (req, res, next) => {
         console.log('=== CREATE PRODUCT DEBUG ===');
         console.log('Files received:', req.files);
         console.log('Body received:', req.body);
+        console.log('Request headers:', req.headers);
+        console.log('Content-Type:', req.get('Content-Type'));
         
         const {
             categoryId,
@@ -90,8 +92,14 @@ exports.createProduct = async (req, res, next) => {
         const dynamicFields = await pickDynamicFields(categoryId, dynamicFieldsRaw);
 
         const mainImages = [];
+        console.log('=== IMAGE PROCESSING DEBUG ===');
+        console.log('req.files:', req.files);
+        console.log('req.files type:', typeof req.files);
+        console.log('req.files.images:', req.files?.images);
+        
         if (req.files && req.files.images) {
             console.log('Processing images:', req.files.images);
+            console.log('Images array length:', req.files.images.length);
             for (const file of req.files.images) {
                 console.log('Processing file:', file.originalname, file.mimetype, file.size);
                 const uploaded = await uploadBuffer(file.buffer, `products/${slug || name}`);
@@ -100,6 +108,7 @@ exports.createProduct = async (req, res, next) => {
             }
         } else {
             console.log('No images found in req.files');
+            console.log('Available files keys:', Object.keys(req.files || {}));
         }
         
         console.log('Final mainImages array:', mainImages);
@@ -302,6 +311,10 @@ exports.updateProduct = async (req, res, next) => {
             updates.dynamicFields = await pickDynamicFields(categoryId, dynamicFieldsRaw);
         }
 
+        console.log('=== UPDATE PRODUCT IMAGE DEBUG ===');
+        console.log('req.files:', req.files);
+        console.log('req.files.images:', req.files?.images);
+        
         if (req.files && req.files.images && req.files.images.length) {
             console.log('=== UPDATE PRODUCT DEBUG ===');
             console.log('Files received:', req.files.images);

@@ -1,11 +1,24 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://homelineteams-production.up.railway.app';
+import serverStatus from '../utils/serverStatus';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+// https://homelineteams-production.up.railway.app
 class ApiService {
   constructor() {
     this.baseURL = API_BASE_URL;
   }
 
   async request(endpoint, options = {}) {
+    // Check if server is online first
+    const isOnline = await serverStatus.getStatus();
+    
+    if (!isOnline) {
+      console.warn(`Backend server is offline, using fallback data for ${endpoint}`);
+      const fallbackData = serverStatus.getFallbackData(endpoint);
+      if (fallbackData) {
+        return fallbackData;
+      }
+    }
+
     const url = `${this.baseURL}${endpoint}`;
     const config = {
       headers: {
@@ -24,7 +37,21 @@ class ApiService {
       
       return await response.json();
     } catch (error) {
-      throw error;
+      console.error(`API request failed for ${endpoint}:`, error);
+      
+      // Try fallback data if available
+      const fallbackData = serverStatus.getFallbackData(endpoint);
+      if (fallbackData) {
+        console.log(`Using fallback data for ${endpoint}`);
+        return fallbackData;
+      }
+      
+      // Return a structured error response as last resort
+      return {
+        success: false,
+        error: error.message,
+        data: null
+      };
     }
   }
 
@@ -132,6 +159,28 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(orderData),
     });
+  }
+
+  // Hero Section
+  async getHeroSection() {
+    return this.request('/api/hero-section');
+  }
+
+  async updateHeroSection(heroData) {
+    return this.request('/api/hero-section', {
+      method: 'PUT',
+      body: JSON.stringify(heroData),
+    });
+  }
+
+  async uploadHeroImage(imageFile) {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    
+    return fetch(`${this.baseURL}/api/hero-section/upload-image`, {
+      method: 'POST',
+      body: formData,
+    }).then(response => response.json());
   }
 
   // Utility methods

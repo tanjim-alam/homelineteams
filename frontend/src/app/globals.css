@@ -130,3 +130,95 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* SEO Content Styling */
+.seo-content {
+  @apply text-gray-700 leading-relaxed;
+}
+
+.seo-content h1 {
+  @apply text-3xl font-bold text-gray-900 mb-6 mt-8 first:mt-0;
+}
+
+.seo-content h2 {
+  @apply text-2xl font-bold text-gray-900 mb-4 mt-6;
+}
+
+.seo-content h3 {
+  @apply text-xl font-semibold text-gray-900 mb-3 mt-5;
+}
+
+.seo-content h4 {
+  @apply text-lg font-semibold text-gray-900 mb-2 mt-4;
+}
+
+.seo-content p {
+  @apply text-gray-700 leading-relaxed mb-4;
+}
+
+.seo-content a {
+  @apply text-primary-600 no-underline hover:underline transition-colors duration-200;
+}
+
+.seo-content strong,
+.seo-content b {
+  @apply font-semibold text-gray-900;
+}
+
+.seo-content em,
+.seo-content i {
+  @apply italic;
+}
+
+.seo-content u {
+  @apply underline;
+}
+
+.seo-content ul {
+  @apply list-disc list-inside mb-4 space-y-2;
+}
+
+.seo-content ol {
+  @apply list-decimal list-inside mb-4 space-y-2;
+}
+
+.seo-content li {
+  @apply text-gray-700;
+}
+
+.seo-content blockquote {
+  @apply border-l-4 border-primary-200 pl-4 italic text-gray-600 my-4;
+}
+
+.seo-content img {
+  @apply max-w-full h-auto rounded-lg shadow-sm my-4;
+}
+
+.seo-content hr {
+  @apply border-gray-200 my-6;
+}
+
+.seo-content table {
+  @apply w-full border-collapse border border-gray-300 my-4;
+}
+
+.seo-content th,
+.seo-content td {
+  @apply border border-gray-300 px-4 py-2 text-left;
+}
+
+.seo-content th {
+  @apply bg-gray-50 font-semibold;
+}
+
+.seo-content code {
+  @apply bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-mono;
+}
+
+.seo-content pre {
+  @apply bg-gray-100 p-4 rounded-lg overflow-x-auto my-4;
+}
+
+.seo-content pre code {
+  @apply bg-transparent p-0;
+}

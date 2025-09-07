@@ -19,6 +19,8 @@ export default function CartPage() {
     getCartTotal 
   } = useCart();
 
+  console.log("cartItems",cartItems);
+
   const getTotalDiscount = () => {
     return cartItems.reduce((sum, item) => sum + ((item.mrp - item.price) * item.quantity), 0);
   };
@@ -106,12 +108,20 @@ export default function CartPage() {
                       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                         {/* Product Image */}
                         <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 mx-auto sm:mx-0">
-                          {/* <Image
-                            src={item.image}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
-                          /> */}
+                          {item.product?.mainImages?.[0] && typeof item.product.mainImages[0] === 'string' && item.product.mainImages[0].trim() !== '' ? (
+                            <Image
+                              src={item.product.mainImages[0]}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          )}
                         </div>
 
                         {/* Product Details */}

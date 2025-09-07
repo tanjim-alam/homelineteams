@@ -7,9 +7,6 @@ export default function QuickQuoteEstimator({ className = '' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     homeType: '',
-    rooms: [],
-    purpose: '',
-    timeline: '',
     contactInfo: {
       name: '',
       phone: ''

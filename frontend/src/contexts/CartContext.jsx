@@ -51,7 +51,7 @@ export function CartProvider({ children }) {
           id: Date.now(), // Temporary ID
           productId: product._id,
           name: product.name,
-          image: product.images?.[0] || product.image,
+          image: product.images?.[0] || product.image || product.mainImages?.[0] || null,
           price: selectedVariant?.price || product.basePrice || 0,
           mrp: selectedVariant?.mrp || product.basePrice || 0,
           quantity,

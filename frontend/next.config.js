@@ -25,6 +25,12 @@ const nextConfig = {
         hostname: 'via.placeholder.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.vijayhomeservices.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

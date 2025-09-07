@@ -47,7 +47,17 @@ const uploadProduct = multer({
   storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }
-}).any(); // Use .any() to handle all fields including text and files
+}).fields([
+  { name: 'images', maxCount: 10 },
+  { name: 'metaData[ogImage]', maxCount: 1 }
+]); // Use .fields() to handle specific file fields
+
+// 🔹 Product text-only upload (for updates without files)
+const uploadProductText = (req, res, next) => {
+  // For text-only updates, we don't need multer
+  // The text fields will be available in req.body
+  next();
+};
 
 // 🔹 Debugging middleware (optional)
 const debugUpload = (req, res, next) => {
@@ -64,5 +74,6 @@ module.exports = {
   uploadCategory,
   uploadCategoryText,
   uploadProduct,
+  uploadProductText,
   debugUpload
 };
