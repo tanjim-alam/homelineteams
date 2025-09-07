@@ -46,17 +46,18 @@ export const useHeroData = () => {
       const data = await apiService.getHeroSection();
       console.log('Hero data received:', data);
       
-      if (data && data.success) {
+      if (data && data.success && data.data) {
         setHeroData(data.data);
         setLastUpdated(new Date());
         console.log('Hero data updated successfully');
       } else {
         console.log('API returned unsuccessful response, using default data');
         console.log('API response:', data);
+        // Don't set error for unsuccessful API response, just use default data
       }
     } catch (error) {
       console.error('Error fetching hero data:', error);
-      setError(error.message);
+      // Don't set error state to prevent UI crashes, just log it
       console.log('Using default hero data due to API error');
     } finally {
       setIsLoading(false);

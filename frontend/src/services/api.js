@@ -1,21 +1,30 @@
 import serverStatus from '../utils/serverStatus';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
-// https://homelineteams-production.up.railway.app
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 
+  (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000' 
+    : 'https://homelineteams-production.up.railway.app');
 class ApiService {
   constructor() {
     this.baseURL = API_BASE_URL;
   }
 
   async request(endpoint, options = {}) {
-    // Check if server is online first
-    const isOnline = await serverStatus.getStatus();
+    // Skip server status check in production to prevent errors
+    const isProduction = typeof window !== 'undefined' && 
+      (window.location.hostname.includes('vercel.app') || 
+       window.location.hostname.includes('homelineteams'));
     
-    if (!isOnline) {
-      console.warn(`Backend server is offline, using fallback data for ${endpoint}`);
-      const fallbackData = serverStatus.getFallbackData(endpoint);
-      if (fallbackData) {
-        return fallbackData;
+    if (!isProduction) {
+      // Check if server is online first (only in development)
+      const isOnline = await serverStatus.getStatus();
+      
+      if (!isOnline) {
+        console.warn(`Backend server is offline, using fallback data for ${endpoint}`);
+        const fallbackData = serverStatus.getFallbackData(endpoint);
+        if (fallbackData) {
+          return fallbackData;
+        }
       }
     }
 

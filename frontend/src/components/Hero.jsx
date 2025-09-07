@@ -34,11 +34,16 @@ const Hero = () => {
       <>
         <MobileHero />
         <section className="relative bg-gray-200 hidden md:flex min-h-screen items-center justify-center">
-          <div className="text-gray-600 text-lg">Loading hero section...</div>
+          <div className="text-gray-600 text-lg">Loading...</div>
         </section>
       </>
     );
   }
+
+  // Ensure we have at least one background image
+  const safeBackgroundImages = backgroundImages.length > 0 ? backgroundImages : [
+    { imageUrl: '/hero-bg-1.jpg', altText: 'Default Hero Background', isActive: true }
+  ];
 
   return (
     <>
@@ -51,8 +56,8 @@ const Hero = () => {
         <div className="relative min-h-screen flex items-center overflow-hidden">
         {/* Sliding Background Images */}
         <div className="absolute inset-0">
-          {backgroundImages.length > 0 ? (
-            backgroundImages.map((image, index) => (
+          {safeBackgroundImages.length > 0 ? (
+            safeBackgroundImages.map((image, index) => (
               <div
                 key={index}
                 className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${

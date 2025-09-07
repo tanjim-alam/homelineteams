@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BottomNavbar from '@/components/BottomNavbar';
 import QuickQuoteEstimator from '@/components/QuickQuoteEstimator';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { CartProvider } from '@/contexts/CartContext';
 
 export default function RootLayout({ children }) {
@@ -44,13 +45,15 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://res.cloudinary.com" />
       </head>
       <body>
-        <CartProvider>
-          <Navbar />
-          <main className="pb-20 lg:pb-0">{children}</main>
-          <Footer />
-          <BottomNavbar />
-          <QuickQuoteEstimator />
-        </CartProvider>
+        <ErrorBoundary>
+          <CartProvider>
+            <Navbar />
+            <main className="pb-20 lg:pb-0">{children}</main>
+            <Footer />
+            <BottomNavbar />
+            <QuickQuoteEstimator />
+          </CartProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
