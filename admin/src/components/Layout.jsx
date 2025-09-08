@@ -26,6 +26,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { path: '/products', label: 'Products', icon: Package },
     { path: '/orders', label: 'Orders', icon: ShoppingCart },
     { path: '/hero-section', label: 'Hero Section', icon: Image },
+    { path: '/leads', label: 'Leads', icon: User },
   ]
 
   return (
@@ -111,7 +112,8 @@ const Header = ({ onMenuClick }) => {
       '/categories': 'Categories',
       '/products': 'Products',
       '/orders': 'Orders',
-      '/hero-section': 'Hero Section'
+      '/hero-section': 'Hero Section',
+      '/leads': 'Leads'
     }
     return titles[currentPath] || 'Admin Panel'
   }

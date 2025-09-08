@@ -8,15 +8,44 @@ import {
   Users, Award, Clock, Shield, Package, ChefHat
 } from 'lucide-react';
 import Metadata from '@/components/Metadata';
+import api from '@/services/api';
 import Image from 'next/image';
 
 export default function OneBHKPackagePage() {
   const [activeTab, setActiveTab] = useState('quote');
   const [showDesignSession, setShowDesignSession] = useState(false);
+  const [leadForm, setLeadForm] = useState({ name: '', phone: '', city: '', homeType: '' });
+  const [submitting, setSubmitting] = useState(false);
   const [packageConfig, setPackageConfig] = useState({
     kitchenType: '',
     wardrobeType: ''
   });
+
+  const handleLeadSubmit = async () => {
+    if (!leadForm.name?.trim() || !leadForm.phone?.trim()) {
+      alert('Please enter your name and phone number.');
+      return;
+    }
+    try {
+      setSubmitting(true);
+      await api.createLead({
+        name: leadForm.name.trim(),
+        phone: leadForm.phone.trim(),
+        city: leadForm.city || '',
+        homeType: leadForm.homeType || '',
+        sourcePage: '/collections/1-bhk-package',
+        message: '1 BHK Package design session request',
+        meta: { packageConfig }
+      });
+      alert('Thanks! We will contact you shortly.');
+      setShowDesignSession(false);
+      setLeadForm({ name: '', phone: '', city: '', homeType: '' });
+    } catch (e) {
+      alert('Failed to submit. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   // Sample package data based on Qarpentri's 1 BHK offerings
   const allPackages = [
@@ -183,16 +212,16 @@ export default function OneBHKPackagePage() {
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link 
-                  href="#quote-estimator"
+                  href="/contact"
                   className="bg-yellow-400 hover:bg-yellow-500 text-green-900 font-bold px-8 py-4 text-lg rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   Get Your Free 1 BHK Quote
                 </Link>
                 <Link 
-                  href="#package-calculator"
+                  href="/contact"
                   className="btn-secondary border-white text-white hover:bg-white hover:text-green-600 px-8 py-4 text-lg font-semibold"
                 >
-                  Package Calculator
+                  Contact Us
                 </Link>
               </div>
             </div>
@@ -212,22 +241,22 @@ export default function OneBHKPackagePage() {
               <div className="lg:w-80 lg:sticky lg:top-8 lg:h-fit">
                 <div className="bg-gradient-to-b from-purple-50 to-pink-50 rounded-2xl p-4 border border-purple-100 shadow-lg">
                   <div className="text-center mb-4">
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">Filters</h3>
-                    <p className="text-xs text-gray-600">{filteredPackages.length} packages found</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">Filters</h3>
+                    <p className="text-sm text-gray-600">{filteredPackages.length} packages found</p>
                   </div>
 
                   <div className="space-y-4">
                     {/* Kitchen Configuration */}
                     <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-                      <h4 className="text-xs font-semibold text-gray-900 mb-2 flex items-center gap-1">
-                        <ChefHat className="w-3 h-3 text-purple-600" />
+                      <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1">
+                        <ChefHat className="w-4 h-4 text-purple-600" />
                         Kitchen Type
                       </h4>
                       <div className="space-y-1">
                         {['L Shape', 'Parallel Shape', 'Straight Shape'].map((type) => (
                           <button
                             key={type}
-                            className={`w-full p-2 rounded-md border text-left text-gray-700 transition-all duration-200 ${
+                            className={`w-full p-2 rounded-md border text-left text-gray-700 transition-all duration-200 cursor-pointer ${
                               packageConfig.kitchenType === type
                                 ? 'border-purple-600 bg-purple-100 text-purple-900'
                                 : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
@@ -235,9 +264,9 @@ export default function OneBHKPackagePage() {
                             onClick={() => setPackageConfig({...packageConfig, kitchenType: type})}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-medium">{type}</span>
+                              <span className="text-sm font-medium">{type}</span>
                               {packageConfig.kitchenType === type && (
-                                <CheckCircle className="w-3 h-3 text-purple-600" />
+                                <CheckCircle className="w-4 h-4 text-purple-600" />
                               )}
                             </div>
                           </button>
@@ -247,15 +276,15 @@ export default function OneBHKPackagePage() {
 
                     {/* Wardrobe Configuration */}
                     <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-                      <h4 className="text-xs font-semibold text-gray-900 mb-2 flex items-center gap-1">
-                        <Home className="w-3 h-3 text-purple-600" />
+                      <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1">
+                        <Home className="w-4 h-4 text-purple-600" />
                         Wardrobe Type
                       </h4>
                       <div className="grid grid-cols-2 gap-1">
                         {['2 Door', '3 Door', '4 Door'].map((type) => (
                           <button
                             key={type}
-                            className={`w-full p-1.5 rounded-md border text-left text-gray-700 transition-all duration-200 ${
+                            className={`w-full p-1.5 rounded-md border text-left text-gray-700 transition-all duration-200 cursor-pointer ${
                               packageConfig.wardrobeType === type
                                 ? 'border-purple-600 bg-purple-100 text-purple-900'
                                 : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
@@ -263,9 +292,9 @@ export default function OneBHKPackagePage() {
                             onClick={() => setPackageConfig({...packageConfig, wardrobeType: type})}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-medium">{type}</span>
+                              <span className="text-sm font-medium">{type}</span>
                               {packageConfig.wardrobeType === type && (
-                                <CheckCircle className="w-2 h-2 text-purple-600" />
+                                <CheckCircle className="w-3 h-3 text-purple-600" />
                               )}
                             </div>
                           </button>
@@ -277,16 +306,16 @@ export default function OneBHKPackagePage() {
                   <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-purple-200">
                     <button 
                       onClick={() => setPackageConfig({kitchenType: '', wardrobeType: ''})}
-                      className="flex items-center justify-center gap-1 px-3 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                      className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200 cursor-pointer"
                     >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                       Clear all
                     </button>
                     <button 
                       onClick={() => setShowDesignSession(true)}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-3 py-2 rounded-md text-xs font-semibold shadow-lg transition-all duration-200"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-3 py-2 rounded-md text-sm font-semibold shadow-lg transition-all duration-200 cursor-pointer"
                     >
                       Book Consultation
                     </button>
@@ -326,7 +355,7 @@ export default function OneBHKPackagePage() {
                           <div className="text-xs text-gray-600 mb-3">Delivery in 15 days*</div>
                           <button 
                             onClick={() => setShowDesignSession(true)}
-                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 text-sm"
+                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 text-sm cursor-pointer"
                           >
                             Book Consultation
                           </button>
@@ -343,7 +372,7 @@ export default function OneBHKPackagePage() {
                     <p className="text-gray-600 mb-4">Try adjusting your filters to see more options</p>
                     <button 
                       onClick={() => setPackageConfig({kitchenType: '', wardrobeType: ''})}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 cursor-pointer"
                     >
                       Clear all filters
                     </button>
@@ -401,51 +430,104 @@ export default function OneBHKPackagePage() {
           </div>
         </div>
 
-        {/* Quote Estimator Section */}
-        <div id="quote-estimator" className="py-16 sm:py-20 bg-white">
-          <div className="container-custom px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                  Get Your Free 1 BHK Package Quote
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Answer a few questions and get an instant estimate for your complete 1 BHK project
-                </p>
-              </div>
+        {/* Design Session Modal */}
+        {showDesignSession && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Book Free 1 BHK Design Session</h2>
+                  <button 
+                    onClick={() => setShowDesignSession(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
 
-              <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-200">
-                <OneBHKQuoteEstimator />
+                <div className="space-y-6">
+                  {/* Home Type Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Home Type</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { id: '1bhk', name: '1 BHK', description: 'Perfect for small families' },
+                        { id: '2bhk', name: '2 BHK', description: 'Ideal for growing families' },
+                        { id: '3bhk', name: '3 BHK', description: 'Spacious family homes' },
+                        { id: '4bhk', name: '4 BHK', description: 'Luxury family living' }
+                      ].map((type) => (
+                        <button
+                          key={type.id}
+                          onClick={() => setLeadForm({ ...leadForm, homeType: type.name })}
+                          className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${leadForm.homeType === type.name ? 'border-purple-400 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}
+                        >
+                          <div className="font-semibold text-gray-900 text-sm">{type.name}</div>
+                          <div className="text-xs text-gray-600">{type.description}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Contact Information */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                      <input
+                        type="text"
+                        value={leadForm.name}
+                        onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter your name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                      <input
+                        type="tel"
+                        value={leadForm.phone}
+                        onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter your phone"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                      <select
+                        value={leadForm.city}
+                        onChange={(e) => setLeadForm({ ...leadForm, city: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      >
+                        <option value="">Select your city</option>
+                        <option value="mumbai">Mumbai</option>
+                        <option value="delhi">Delhi</option>
+                        <option value="bangalore">Bangalore</option>
+                        <option value="hyderabad">Hyderabad</option>
+                        <option value="chennai">Chennai</option>
+                        <option value="pune">Pune</option>
+                        <option value="kolkata">Kolkata</option>
+                        <option value="ahmedabad">Ahmedabad</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button 
+                    onClick={handleLeadSubmit}
+                    disabled={submitting}
+                    className={`w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 ${submitting ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    {submitting ? 'Submitting...' : 'Book Free 1 BHK Design Session'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Package Calculator Section */}
-        <div id="package-calculator" className="py-16 sm:py-20 bg-gray-50">
-          <div className="container-custom px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                  1 BHK Package Calculator
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Design your complete 1 BHK home and get accurate pricing instantly
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-200">
-                <OneBHKPackageCalculator 
-                  showDesignSession={showDesignSession}
-                  setShowDesignSession={setShowDesignSession}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Stats Section */}
-        <div className="py-16 sm:py-20 bg-green-600 text-white">
+        <div className="py-16 sm:py-20 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-600 hover:to-primary-700 text-white">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
@@ -490,588 +572,5 @@ export default function OneBHKPackagePage() {
         </div>
       </div>
     </>
-  );
-}
-
-// 1 BHK Quote Estimator Component
-function OneBHKQuoteEstimator() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    apartmentType: '',
-    rooms: [],
-    style: '',
-    timeline: '',
-    contactInfo: {
-      name: '',
-      email: '',
-      phone: '',
-      city: ''
-    }
-  });
-
-  const steps = [
-    { id: 1, title: 'Apartment Type', description: 'Select your apartment type' },
-    { id: 2, title: 'Rooms', description: 'Choose rooms to design' },
-    { id: 3, title: 'Style & Budget', description: 'Set your design preferences' },
-    { id: 4, title: 'Contact Info', description: 'Share your details' }
-  ];
-
-  const apartmentTypes = [
-    { id: 'studio', name: 'Studio Apartment', description: 'Compact 1 BHK with open layout' },
-    { id: 'standard', name: 'Standard 1 BHK', description: 'Traditional 1 bedroom layout' },
-    { id: 'premium', name: 'Premium 1 BHK', description: 'Luxury 1 BHK with modern amenities' }
-  ];
-
-  const rooms = [
-    { id: 'living', name: 'Living Room', icon: '🛋️' },
-    { id: 'bedroom', name: 'Bedroom', icon: '🛏️' },
-    { id: 'kitchen', name: 'Kitchen', icon: '🍳' },
-    { id: 'bathroom', name: 'Bathroom', icon: '🚿' },
-    { id: 'balcony', name: 'Balcony', icon: '🌿' }
-  ];
-
-  const handleNext = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
-  };
-
-  const handlePrev = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
-
-  const getProjectType = () => {
-    const apartmentType = apartmentTypes.find(a => a.id === formData.apartmentType);
-    return apartmentType ? `${apartmentType.name} Design` : '1 BHK Design Project';
-  };
-
-  return (
-    <div className="max-w-2xl mx-auto">
-      {/* Progress Bar */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          {steps.map((step) => (
-            <div key={step.id} className="flex flex-col items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                currentStep >= step.id 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-gray-200 text-gray-600'
-              }`}>
-                {currentStep > step.id ? <CheckCircle className="w-5 h-5" /> : step.id}
-              </div>
-              <div className="text-xs text-center mt-2 hidden sm:block">
-                <div className="font-medium">{step.title}</div>
-                <div className="text-gray-500">{step.description}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-green-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 4) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-
-      {/* Step Content */}
-      <div className="mb-8">
-        {currentStep === 1 && (
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">What type of 1 BHK apartment do you have?</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {apartmentTypes.map((type) => (
-                <button
-                  key={type.id}
-                  onClick={() => setFormData({...formData, apartmentType: type.id})}
-                  className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                    formData.apartmentType === type.id
-                      ? 'border-green-600 bg-green-50'
-                      : 'border-gray-200 hover:border-green-300'
-                  }`}
-                >
-                  <div className="font-semibold text-gray-900">{type.name}</div>
-                  <div className="text-sm text-gray-600">{type.description}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {currentStep === 2 && (
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Which rooms would you like to design?</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {rooms.map((room) => (
-                <button
-                  key={room.id}
-                  onClick={() => {
-                    const newRooms = formData.rooms.includes(room.id)
-                      ? formData.rooms.filter(r => r !== room.id)
-                      : [...formData.rooms, room.id];
-                    setFormData({...formData, rooms: newRooms});
-                  }}
-                  className={`p-4 rounded-xl border-2 text-center transition-all duration-200 ${
-                    formData.rooms.includes(room.id)
-                      ? 'border-green-600 bg-green-50'
-                      : 'border-gray-200 hover:border-green-300'
-                  }`}
-                >
-                  <div className="text-2xl mb-2">{room.icon}</div>
-                  <div className="text-sm font-medium text-gray-900">{room.name}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {currentStep === 3 && (
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Style & Design Preferences</h3>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Design Style</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {['Modern', 'Traditional', 'Contemporary', 'Minimalist', 'Scandinavian', 'Industrial'].map((style) => (
-                    <button
-                      key={style}
-                      onClick={() => setFormData({...formData, style})}
-                      className={`p-3 rounded-lg border-2 text-center text-gray-700 transition-all duration-200 ${
-                        formData.style === style
-                          ? 'border-green-600 bg-green-50'
-                          : 'border-gray-200 hover:border-green-300'
-                      }`}
-                    >
-                      {style}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Project Timeline</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {['ASAP', '1-2 months', '3-6 months', '6+ months'].map((timeline) => (
-                    <button
-                      key={timeline}
-                      onClick={() => setFormData({...formData, timeline})}
-                      className={`p-3 rounded-lg border-2 text-center text-gray-700 transition-all duration-200 ${
-                        formData.timeline === timeline
-                          ? 'border-green-600 bg-green-50'
-                          : 'border-gray-200 hover:border-green-300'
-                      }`}
-                    >
-                      {timeline}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentStep === 4 && (
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Share your contact details</h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    value={formData.contactInfo.name}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      contactInfo: {...formData.contactInfo, name: e.target.value}
-                    })}
-                    className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Enter your name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={formData.contactInfo.phone}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      contactInfo: {...formData.contactInfo, phone: e.target.value}
-                    })}
-                    className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="+91 98765 43210"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                  <input
-                    type="email"
-                    value={formData.contactInfo.email}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      contactInfo: {...formData.contactInfo, email: e.target.value}
-                    })}
-                    className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="your@email.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                  <input
-                    type="text"
-                    value={formData.contactInfo.city}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      contactInfo: {...formData.contactInfo, city: e.target.value}
-                    })}
-                    className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Bangalore"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation Buttons */}
-      <div className="flex justify-between">
-        <button
-          onClick={handlePrev}
-          disabled={currentStep === 1}
-          className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Previous
-        </button>
-        
-        {currentStep < 4 ? (
-          <button
-            onClick={handleNext}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 flex items-center gap-2 rounded-lg"
-          >
-            Next Step
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              alert('1 BHK package quote request submitted! Our team will contact you within 24 hours.');
-            }}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 flex items-center justify-center gap-2 rounded-lg"
-          >
-            Get Free Quote
-            <CheckCircle className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-
-      {/* Project Summary */}
-      {currentStep >= 2 && (
-        <div className="mt-8 p-4 bg-green-50 rounded-xl border border-green-200">
-          <div className="text-center">
-            <div className="text-sm text-green-600 font-medium mb-1">Project Summary</div>
-            <div className="text-lg font-bold text-green-700">{getProjectType()}</div>
-            <div className="text-xs text-green-600 mt-1">Our design team will provide a detailed quote after consultation</div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// 1 BHK Package Calculator Component
-function OneBHKPackageCalculator({ showDesignSession, setShowDesignSession }) {
-  const [packageData, setPackageData] = useState({
-    rooms: [],
-    materials: {
-      flooring: '',
-      paint: '',
-      furniture: ''
-    },
-    features: []
-  });
-
-  const rooms = [
-    { id: 'living', name: 'Living Room', icon: '🛋️' },
-    { id: 'bedroom', name: 'Bedroom', icon: '🛏️' },
-    { id: 'kitchen', name: 'Kitchen', icon: '🍳' },
-    { id: 'bathroom', name: 'Bathroom', icon: '🚿' },
-    { id: 'balcony', name: 'Balcony', icon: '🌿' }
-  ];
-
-  const materials = {
-    flooring: [
-      { id: 'tiles', name: 'Ceramic Tiles', quality: 'Good', durability: '10+ years' },
-      { id: 'vitrified', name: 'Vitrified Tiles', quality: 'Better', durability: '15+ years' },
-      { id: 'wood', name: 'Wooden Flooring', quality: 'Best', durability: '20+ years' }
-    ],
-    paint: [
-      { id: 'basic', name: 'Basic Paint', quality: 'Good', durability: '3-5 years' },
-      { id: 'premium', name: 'Premium Paint', quality: 'Better', durability: '5-7 years' },
-      { id: 'luxury', name: 'Luxury Paint', quality: 'Best', durability: '7+ years' }
-    ],
-    furniture: [
-      { id: 'basic', name: 'Basic Furniture', quality: 'Good', durability: '5-7 years' },
-      { id: 'premium', name: 'Premium Furniture', quality: 'Better', durability: '8-10 years' },
-      { id: 'luxury', name: 'Luxury Furniture', quality: 'Best', durability: '12+ years' }
-    ]
-  };
-
-  const features = [
-    { id: 'lighting', name: 'LED Lighting', category: 'Lighting' },
-    { id: 'storage', name: 'Smart Storage', category: 'Storage' },
-    { id: 'ac', name: 'AC Installation', category: 'Comfort' },
-    { id: 'security', name: 'Security System', category: 'Security' },
-    { id: 'smart', name: 'Smart Home', category: 'Technology' }
-  ];
-
-  const getPackageSummary = () => {
-    return {
-      rooms: packageData.rooms.length,
-      features: packageData.features.length
-    };
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Configuration Panel */}
-        <div className="space-y-6">
-          {/* Rooms */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Rooms</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {rooms.map((room) => (
-                <button
-                  key={room.id}
-                  onClick={() => {
-                    const newRooms = packageData.rooms.includes(room.id)
-                      ? packageData.rooms.filter(r => r !== room.id)
-                      : [...packageData.rooms, room.id];
-                    setPackageData({...packageData, rooms: newRooms});
-                  }}
-                  className={`p-4 rounded-lg border-2 text-center transition-all duration-200 ${
-                    packageData.rooms.includes(room.id)
-                      ? 'border-green-600 bg-green-50'
-                      : 'border-gray-200 hover:border-green-300'
-                  }`}
-                >
-                  <div className="text-2xl mb-2">{room.icon}</div>
-                  <div className="text-sm font-medium text-gray-900">{room.name}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Materials */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Materials & Finishes</h3>
-            <div className="space-y-4">
-              {Object.entries(materials).map(([category, options]) => (
-                <div key={category}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
-                    {category.replace(/([A-Z])/g, ' $1')}
-                  </label>
-                  <div className="grid grid-cols-1 gap-2">
-                    {options.map((option) => (
-                      <button
-                        key={option.id}
-                        onClick={() => setPackageData({
-                          ...packageData,
-                          materials: {...packageData.materials, [category]: option.id}
-                        })}
-                        className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${
-                          packageData.materials[category] === option.id
-                            ? 'border-green-600 bg-green-50'
-                            : 'border-gray-200 hover:border-green-300'
-                        }`}
-                      >
-                        <div className="text-sm font-medium text-gray-900">{option.name}</div>
-                        <div className="text-xs text-gray-600">Quality: {option.quality}</div>
-                        <div className="text-xs text-gray-500">Durability: {option.durability}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Features */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Features</h3>
-            <div className="grid grid-cols-1 gap-3">
-              {features.map((feature) => (
-                <button
-                  key={feature.id}
-                  onClick={() => {
-                    const newFeatures = packageData.features.includes(feature.id)
-                      ? packageData.features.filter(f => f !== feature.id)
-                      : [...packageData.features, feature.id];
-                    setPackageData({...packageData, features: newFeatures});
-                  }}
-                  className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${
-                    packageData.features.includes(feature.id)
-                      ? 'border-green-600 bg-green-50'
-                      : 'border-gray-200 hover:border-green-300'
-                  }`}
-                >
-                  <div className="text-sm font-medium text-gray-900">{feature.name}</div>
-                  <div className="text-xs text-gray-600">{feature.category}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Project Summary */}
-        <div className="lg:sticky lg:top-8">
-          <div className="bg-gray-50 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">1 BHK Package Summary</h3>
-            
-            <div className="space-y-4 mb-6">
-              {(() => {
-                const summary = getPackageSummary();
-                return (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Selected Rooms</span>
-                      <span className="font-medium">{summary.rooms} rooms</span>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Additional Features</span>
-                      <span className="font-medium">{summary.features} features</span>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-
-            <div className="border-t border-gray-200 pt-4 mb-6">
-              <div className="text-center">
-                <div className="text-lg font-bold text-gray-900 mb-2">Ready for Quote?</div>
-                <p className="text-sm text-gray-500">
-                  Our design team will provide a detailed quote after consultation
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <button 
-                onClick={() => setShowDesignSession(true)}
-                className="w-full bg-green-400 hover:bg-green-500 text-green-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
-              >
-                BOOK FREE DESIGN SESSION
-              </button>
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg">
-                Get Detailed Quote
-              </button>
-              <button className="w-full border border-green-600 text-green-600 hover:bg-green-50 py-3 rounded-lg">
-                Schedule Site Visit
-              </button>
-            </div>
-
-            <div className="mt-6 p-4 bg-green-50 rounded-lg">
-              <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
-                <Star className="w-4 h-4" />
-                Free Design Consultation
-              </div>
-              <p className="text-sm text-green-600">
-                Get a personalized 3D design and detailed quote from our expert designers.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Design Session Modal */}
-      {showDesignSession && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Book Free 1 BHK Design Session</h2>
-                <button 
-                  onClick={() => setShowDesignSession(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                {/* Home Type Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Home Type</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { id: '1bhk', name: '1 BHK', description: 'Perfect for small families' },
-                      { id: '2bhk', name: '2 BHK', description: 'Ideal for growing families' },
-                      { id: '3bhk', name: '3 BHK', description: 'Spacious family homes' },
-                      { id: '4bhk', name: '4 BHK', description: 'Luxury family living' }
-                    ].map((type) => (
-                      <button
-                        key={type.id}
-                        className="p-3 rounded-lg border-2 text-center transition-all duration-200 border-gray-200 hover:border-green-300"
-                      >
-                        <div className="font-semibold text-gray-900 text-sm">{type.name}</div>
-                        <div className="text-xs text-gray-600">{type.description}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter your name"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                    <input
-                      type="tel"
-                      className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter your phone"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                    <select className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                      <option value="">Select your city</option>
-                      <option value="mumbai">Mumbai</option>
-                      <option value="delhi">Delhi</option>
-                      <option value="bangalore">Bangalore</option>
-                      <option value="hyderabad">Hyderabad</option>
-                      <option value="chennai">Chennai</option>
-                      <option value="pune">Pune</option>
-                      <option value="kolkata">Kolkata</option>
-                      <option value="ahmedabad">Ahmedabad</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <button 
-                  onClick={() => {
-                    alert('1 BHK design session booked! Our team will contact you within 24 hours to confirm your appointment.');
-                    setShowDesignSession(false);
-                  }}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
-                >
-                  Book Free 1 BHK Design Session
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
   );
 }

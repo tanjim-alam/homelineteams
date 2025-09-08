@@ -18,6 +18,7 @@ const categoryRoutes = require('./routes/category.routes');
 const productRoutes = require('./routes/product.routes');
 const orderRoutes = require('./routes/order.routes');
 const heroSectionRoutes = require('./routes/heroSection.routes');
+const leadRoutes = require('./routes/lead.routes');
 
 // Middlewares
 const { notFoundHandler, errorHandler } = require('./middlewares/error.middleware');
@@ -114,6 +115,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/hero-section', heroSectionRoutes);
+app.use('/api/leads', leadRoutes);
 
 // 404 and error handlers
 app.use(notFoundHandler);

@@ -143,7 +143,7 @@ const Hero = () => {
             </div>
 
             {/* Right Side - Hero Slider */}
-            <div className="relative w-full lg:w-1/2 flex justify-center lg:justify-end">
+            <div className="relative w-full lg:w-1/3 flex justify-center lg:justify-end">
               <div className="w-full max-w-sm sm:max-w-md">
                 <HeroSlider isMobile={false} className="shadow-xl rounded-xl" />
               </div>

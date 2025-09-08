@@ -5,6 +5,8 @@ import { ArrowRight, Home, ChefHat, Package, Users, Star, CheckCircle, Sparkles,
 import Metadata from '@/components/Metadata';
 import Image from 'next/image';
 import ModernCard from '@/components/ModernCard';
+import InteriorDesignCalculator from '@/components/InteriorDesignCalculator';
+import QuickQuoteEstimator from '@/components/QuickQuoteEstimator';
 
 export default function InteriorDesignPage() {
   return (
@@ -121,13 +123,13 @@ export default function InteriorDesignPage() {
         <div className="py-20 bg-gray-50">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-600 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <div className="inline-flex items-center gap-2 bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
                 <Ruler className="w-4 h-4" />
                 <span>Our Services</span>
               </div>
               <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
                 Design Solutions for
-                <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r text-gradient bg-clip-text text-transparent">
                   Every Space
                 </span>
               </h2>
@@ -193,13 +195,13 @@ export default function InteriorDesignPage() {
         <div className="py-20 bg-white">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-green-100 text-green-600 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <div className="inline-flex items-center gap-2 bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
                 <CheckCircle className="w-4 h-4" />
                 <span>Why Choose Us</span>
               </div>
               <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
                 What Makes Us
-                <span className="block bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                <span className="block text-gradient bg-clip-text text-transparent">
                   Different
                 </span>
               </h2>
@@ -235,6 +237,15 @@ export default function InteriorDesignPage() {
                   Our experienced designers and craftsmen bring years of expertise to every project.
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Interior Design Calculator Section */}
+        <div className="py-20 bg-gray-50">
+          <div className="container-custom">
+            <div className="max-w-4xl mx-auto">
+              <InteriorDesignCalculator />
             </div>
           </div>
         </div>
@@ -296,6 +307,9 @@ export default function InteriorDesignPage() {
           </div>
         </div>
       </div>
+
+      {/* Quick Quote Estimator - Only on Interior Design Page */}
+      <QuickQuoteEstimator />
     </>
   );
 }

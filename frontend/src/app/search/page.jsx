@@ -105,11 +105,11 @@ function SearchContent() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search for products, categories, or keywords..."
-                  className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-primary-500 focus:outline-none transition-colors duration-200"
+                  className="w-full pl-12 pr-4 py-4 text-gray-700 text-lg border-2 border-gray-200 rounded-2xl focus:border-primary-500 focus:outline-none transition-colors duration-200"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 text-white px-6 py-2 rounded-xl hover:bg-primary-700 transition-colors duration-200"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 text-white px-6 py-2 rounded-xl hover:bg-primary-700 transition-colors duration-200 cursor-pointer"
                 >
                   Search
                 </button>
@@ -128,7 +128,7 @@ function SearchContent() {
                         setSearchTerm(term);
                         performSearch(term);
                       }}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-primary-100 hover:text-primary-600 transition-colors duration-200"
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-primary-100 hover:text-primary-600 transition-colors duration-200 cursor-pointer"
                     >
                       {term}
                     </button>
@@ -151,7 +151,7 @@ function SearchContent() {
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-primary-600"
+                    className="flex items-center cursor-pointer gap-2 text-gray-600 hover:text-primary-600"
                   >
                     <Filter className="w-4 h-4" />
                     Filters
@@ -160,7 +160,7 @@ function SearchContent() {
                   {hasActiveFilters && (
                     <button
                       onClick={clearFilters}
-                      className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm"
+                      className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                       Clear All
@@ -171,7 +171,7 @@ function SearchContent() {
                 {/* Sort and View */}
                 <div className="flex items-center gap-4">
                   <select 
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="border text-gray-700 cursor-pointer border-gray-300 rounded-lg px-3 py-2 text-sm"
                     value={sortBy}
                     onChange={(e) => handleSortChange(e.target.value)}
                   >
@@ -184,13 +184,13 @@ function SearchContent() {
 
                   <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                     <button
-                      className={`p-2 ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600'}`}
+                      className={`p-2 cursor-pointer ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600'}`}
                       onClick={() => setViewMode('grid')}
                     >
                       <Grid className="w-4 h-4" />
                     </button>
                     <button
-                      className={`p-2 ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600'}`}
+                      className={`p-2 cursor-pointer ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600'}`}
                       onClick={() => setViewMode('list')}
                     >
                       <List className="w-4 h-4" />
@@ -210,7 +210,7 @@ function SearchContent() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="w-full border text-gray-700 border-gray-300 rounded-lg px-3 py-2 text-sm"
                       onChange={(e) => handleFilterChange('priceRange', e.target.value)}
                       value={filters.priceRange || ''}
                     >
@@ -226,7 +226,7 @@ function SearchContent() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="w-full border text-gray-700 border-gray-300 rounded-lg px-3 py-2 text-sm"
                       onChange={(e) => handleFilterChange('category', e.target.value)}
                       value={filters.category || ''}
                     >
@@ -242,7 +242,7 @@ function SearchContent() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="w-full border text-gray-700 border-gray-300 rounded-lg px-3 py-2 text-sm"
                       onChange={(e) => handleFilterChange('availability', e.target.value)}
                       value={filters.availability || ''}
                     >
@@ -256,7 +256,7 @@ function SearchContent() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Rating</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="w-full border text-gray-700 border-gray-300 rounded-lg px-3 py-2 text-sm"
                       onChange={(e) => handleFilterChange('rating', e.target.value)}
                       value={filters.rating || ''}
                     >
@@ -317,7 +317,7 @@ function SearchContent() {
                 <p className="text-gray-600 mb-6">{error}</p>
                 <button
                   onClick={() => performSearch(query)}
-                  className="btn-primary"
+                  className="btn-primary cursor-pointer"
                 >
                   Try Again
                 </button>
@@ -342,7 +342,7 @@ function SearchContent() {
                         setSearchTerm(term);
                         performSearch(term);
                       }}
-                      className="px-4 py-2 bg-primary-100 text-primary-600 rounded-full hover:bg-primary-200 transition-colors duration-200"
+                      className="px-4 py-2 bg-primary-100 text-primary-600 rounded-full hover:bg-primary-200 transition-colors duration-200 cursor-pointer"
                     >
                       Try "{term}"
                     </button>

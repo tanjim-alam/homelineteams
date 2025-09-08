@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Metadata from '@/components/Metadata';
 import Image from 'next/image';
+import api from '@/services/api';
 
 export default function WardrobesPage() {
   const [activeTab, setActiveTab] = useState('quote');
@@ -17,6 +18,45 @@ export default function WardrobesPage() {
     type: '',
     doors: ''
   });
+  const [leadForm, setLeadForm] = useState({
+    name: '',
+    phone: '',
+    city: '',
+    homeType: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleLeadSubmit = async () => {
+    if (!leadForm.name || !leadForm.phone || !leadForm.homeType) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await api.createLead({
+        name: leadForm.name,
+        phone: leadForm.phone,
+        city: leadForm.city,
+        homeType: leadForm.homeType,
+        sourcePage: 'Wardrobes Page',
+        message: 'Interested in wardrobe design',
+        meta: {
+          wardrobeConfig,
+          page: 'wardrobes'
+        }
+      });
+      
+      alert('Wardrobe design session booked! Our team will contact you within 24 hours to confirm your appointment.');
+      setShowDesignSession(false);
+      setLeadForm({ name: '', phone: '', city: '', homeType: '' });
+    } catch (error) {
+      console.error('Error submitting lead:', error);
+      alert('Failed to submit your request. Please try again or contact us directly.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   // Sample wardrobe data based on Qarpentri's offerings
   const allWardrobes = [
@@ -387,51 +427,8 @@ export default function WardrobesPage() {
           </div>
         </div>
 
-        {/* Quote Estimator Section */}
-        <div id="quote-estimator" className="py-16 sm:py-20 bg-white">
-          <div className="container-custom px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                  Get Your Free Wardrobe Design Quote
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Answer a few questions and get an instant estimate for your wardrobe project
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-200">
-                <WardrobeQuoteEstimator />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Wardrobe Calculator Section */}
-        <div id="wardrobe-calculator" className="py-16 sm:py-20 bg-gray-50">
-          <div className="container-custom px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                  Wardrobe Design Calculator
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Design your dream wardrobe and get accurate pricing instantly
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-200">
-                <WardrobeCalculator 
-                  showDesignSession={showDesignSession}
-                  setShowDesignSession={setShowDesignSession}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Stats Section */}
-        <div className="py-16 sm:py-20 bg-blue-600 text-white">
+        <div className="py-16 sm:py-20 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-600 hover:to-primary-700 text-white">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
@@ -477,9 +474,7 @@ export default function WardrobesPage() {
       </div>
     </>
   );
-}
-
-// Wardrobe Quote Estimator Component
+}// Wardrobe Quote Estimator Component
 function WardrobeQuoteEstimator() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -760,7 +755,7 @@ function WardrobeQuoteEstimator() {
 }
 
 // Wardrobe Calculator Component
-function WardrobeCalculator({ showDesignSession, setShowDesignSession }) {
+function WardrobeCalculator({ showDesignSession, setShowDesignSession, leadForm, setLeadForm, submitting, handleLeadSubmit }) {
   const [wardrobeData, setWardrobeData] = useState({
     type: '',
     size: '',
@@ -1038,7 +1033,8 @@ function WardrobeCalculator({ showDesignSession, setShowDesignSession }) {
                     ].map((type) => (
                       <button
                         key={type.id}
-                        className="p-3 rounded-lg border-2 text-center transition-all duration-200 border-gray-200 hover:border-blue-300"
+                        onClick={() => setLeadForm({ ...leadForm, homeType: type.name })}
+                        className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${leadForm.homeType === type.name ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}
                       >
                         <div className="font-semibold text-gray-900 text-sm">{type.name}</div>
                         <div className="text-xs text-gray-600">{type.description}</div>
@@ -1053,6 +1049,8 @@ function WardrobeCalculator({ showDesignSession, setShowDesignSession }) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                     <input
                       type="text"
+                      value={leadForm.name}
+                      onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter your name"
                     />
@@ -1061,13 +1059,19 @@ function WardrobeCalculator({ showDesignSession, setShowDesignSession }) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                     <input
                       type="tel"
+                      value={leadForm.phone}
+                      onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter your phone"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                    <select className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select 
+                      value={leadForm.city}
+                      onChange={(e) => setLeadForm({ ...leadForm, city: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
                       <option value="">Select your city</option>
                       <option value="mumbai">Mumbai</option>
                       <option value="delhi">Delhi</option>
@@ -1083,13 +1087,11 @@ function WardrobeCalculator({ showDesignSession, setShowDesignSession }) {
 
                 {/* Submit Button */}
                 <button 
-                  onClick={() => {
-                    alert('Wardrobe design session booked! Our team will contact you within 24 hours to confirm your appointment.');
-                    setShowDesignSession(false);
-                  }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
+                  onClick={handleLeadSubmit}
+                  disabled={submitting}
+                  className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 ${submitting ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
-                  Book Free Wardrobe Design Session
+                  {submitting ? 'Submitting...' : 'Book Free Wardrobe Design Session'}
                 </button>
               </div>
             </div>
@@ -1099,3 +1101,5 @@ function WardrobeCalculator({ showDesignSession, setShowDesignSession }) {
     </div>
   );
 }
+
+

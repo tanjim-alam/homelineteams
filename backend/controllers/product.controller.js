@@ -587,3 +587,79 @@ exports.deleteProduct = async (req, res, next) => {
         next(err);
     }
 };
+
+// Search products
+exports.searchProducts = async (req, res, next) => {
+    try {
+        const { q, sort, priceRange, category, availability, rating } = req.query;
+        
+        if (!q || q.trim() === '') {
+            return res.json([]);
+        }
+
+        // Build search query
+        const searchQuery = {
+            $or: [
+                { name: { $regex: q, $options: 'i' } },
+                { description: { $regex: q, $options: 'i' } },
+                { tags: { $regex: q, $options: 'i' } }
+            ]
+        };
+
+        // Add filters
+        if (category) {
+            searchQuery.categoryId = category;
+        }
+
+        if (availability === 'in-stock') {
+            searchQuery.stock = { $gt: 0 };
+        } else if (availability === 'out-of-stock') {
+            searchQuery.stock = { $lte: 0 };
+        }
+
+        if (rating) {
+            searchQuery.rating = { $gte: parseFloat(rating) };
+        }
+
+        if (priceRange) {
+            const [min, max] = priceRange.split('-').map(Number);
+            if (max) {
+                searchQuery.basePrice = { $gte: min, $lte: max };
+            } else {
+                searchQuery.basePrice = { $gte: min };
+            }
+        }
+
+        // Build sort options
+        let sortOptions = {};
+        switch (sort) {
+            case 'newest':
+                sortOptions = { createdAt: -1 };
+                break;
+            case 'price-low':
+                sortOptions = { basePrice: 1 };
+                break;
+            case 'price-high':
+                sortOptions = { basePrice: -1 };
+                break;
+            case 'popular':
+                sortOptions = { rating: -1, reviews: -1 };
+                break;
+            case 'relevance':
+            default:
+                // For relevance, we'll use text score if available, otherwise by name match
+                sortOptions = { name: 1 };
+                break;
+        }
+
+        // Execute search
+        const products = await Product.find(searchQuery)
+            .populate('categoryId', 'name slug')
+            .sort(sortOptions)
+            .limit(50); // Limit results for performance
+
+        res.json(products);
+    } catch (err) {
+        next(err);
+    }
+};

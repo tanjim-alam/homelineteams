@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Metadata from '@/components/Metadata';
 import Image from 'next/image';
+import api from '@/services/api';
 
 export default function KitchenCollectionPage() {
   const [activeTab, setActiveTab] = useState('quote');
@@ -18,6 +19,45 @@ export default function KitchenCollectionPage() {
     layout: '',
     material: ''
   });
+  const [leadForm, setLeadForm] = useState({
+    name: '',
+    phone: '',
+    city: '',
+    homeType: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleLeadSubmit = async () => {
+    if (!leadForm.name || !leadForm.phone || !leadForm.homeType) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await api.createLead({
+        name: leadForm.name,
+        phone: leadForm.phone,
+        city: leadForm.city,
+        homeType: leadForm.homeType,
+        sourcePage: 'Kitchen Page',
+        message: 'Interested in kitchen design',
+        meta: {
+          kitchenConfig,
+          page: 'kitchen'
+        }
+      });
+      
+      alert('Kitchen design session booked! Our team will contact you within 24 hours to confirm your appointment.');
+      setShowDesignSession(false);
+      setLeadForm({ name: '', phone: '', city: '', homeType: '' });
+    } catch (error) {
+      console.error('Error submitting lead:', error);
+      alert('Failed to submit your request. Please try again or contact us directly.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   // Sample kitchen data based on Qarpentri's offerings
   const allKitchenPackages = [
@@ -289,15 +329,15 @@ export default function KitchenCollectionPage() {
               <div className="lg:w-80 lg:sticky lg:top-8 lg:h-fit">
                 <div className="bg-gradient-to-b from-orange-50 to-red-50 rounded-2xl p-4 border border-orange-100 shadow-lg">
                   <div className="text-center mb-4">
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">Filters</h3>
-                    <p className="text-xs text-gray-600">{filteredKitchenPackages.length} kitchens found</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">Filters</h3>
+                    <p className="text-sm text-gray-600">{filteredKitchenPackages.length} kitchens found</p>
                   </div>
 
                   <div className="space-y-4">
                     {/* Kitchen Type Configuration */}
                     <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-                      <h4 className="text-xs font-semibold text-gray-900 mb-2 flex items-center gap-1">
-                        <ChefHat className="w-3 h-3 text-orange-600" />
+                      <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1">
+                        <ChefHat className="w-4 h-4 text-orange-600" />
                         Kitchen Type
                       </h4>
                       <div className="space-y-1">
@@ -312,9 +352,9 @@ export default function KitchenCollectionPage() {
                             onClick={() => setKitchenConfig({...kitchenConfig, kitchenType: type})}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-medium">{type}</span>
+                              <span className="text-sm font-medium">{type}</span>
                               {kitchenConfig.kitchenType === type && (
-                                <CheckCircle className="w-3 h-3 text-orange-600" />
+                                <CheckCircle className="w-4 h-4 text-orange-600" />
                               )}
                             </div>
                           </button>
@@ -326,16 +366,16 @@ export default function KitchenCollectionPage() {
                   <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-orange-200">
                     <button 
                       onClick={() => setKitchenConfig({kitchenType: '', layout: '', material: ''})}
-                      className="flex items-center justify-center gap-1 px-3 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                      className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
                     >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                       Clear all
                     </button>
                     <button 
                       onClick={() => setShowDesignSession(true)}
-                      className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 py-2 rounded-md text-xs font-semibold shadow-lg transition-all duration-200"
+                      className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 py-2 rounded-md text-sm font-semibold shadow-lg transition-all duration-200"
                     >
                       Book Consultation
                     </button>
@@ -445,51 +485,10 @@ export default function KitchenCollectionPage() {
           </div>
         </div>
 
-        {/* Quote Estimator Section */}
-        <div id="quote-estimator" className="py-16 sm:py-20 bg-white">
-          <div className="container-custom px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                  Get Your Free Kitchen Design Quote
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Answer a few questions and get an instant estimate for your kitchen project
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-200">
-                <QuoteEstimator />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Kitchen Calculator Section */}
-        <div id="kitchen-calculator" className="py-16 sm:py-20 bg-gray-50">
-          <div className="container-custom px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                  Modular Kitchen Cost Calculator
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Design your dream kitchen and get accurate pricing instantly
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-200">
-                <KitchenCalculator 
-                  showDesignSession={showDesignSession}
-                  setShowDesignSession={setShowDesignSession}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+       
 
         {/* Stats Section */}
-        <div className="py-16 sm:py-20 bg-orange-600 text-white">
+        <div className="py-16 sm:py-20 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-600 hover:to-primary-700  text-white">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
@@ -819,7 +818,7 @@ function QuoteEstimator() {
 }
 
 // Kitchen Calculator Component
-function KitchenCalculator({ showDesignSession, setShowDesignSession }) {
+function KitchenCalculator({ showDesignSession, setShowDesignSession, leadForm, setLeadForm, submitting, handleLeadSubmit }) {
   const [kitchenData, setKitchenData] = useState({
     size: '',
     layout: '',
@@ -1145,7 +1144,8 @@ function KitchenCalculator({ showDesignSession, setShowDesignSession }) {
                     ].map((type) => (
                       <button
                         key={type.id}
-                        className="p-3 rounded-lg border-2 text-center transition-all duration-200 border-gray-200 hover:border-orange-300"
+                        onClick={() => setLeadForm({ ...leadForm, homeType: type.name })}
+                        className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${leadForm.homeType === type.name ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:border-orange-300'}`}
                       >
                         <div className="font-semibold text-gray-900 text-sm">{type.name}</div>
                         <div className="text-xs text-gray-600">{type.description}</div>
@@ -1160,6 +1160,8 @@ function KitchenCalculator({ showDesignSession, setShowDesignSession }) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                     <input
                       type="text"
+                      value={leadForm.name}
+                      onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       placeholder="Enter your name"
                     />
@@ -1168,13 +1170,19 @@ function KitchenCalculator({ showDesignSession, setShowDesignSession }) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                     <input
                       type="tel"
+                      value={leadForm.phone}
+                      onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       placeholder="Enter your phone"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                    <select className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <select 
+                      value={leadForm.city}
+                      onChange={(e) => setLeadForm({ ...leadForm, city: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    >
                       <option value="">Select your city</option>
                       <option value="mumbai">Mumbai</option>
                       <option value="delhi">Delhi</option>
@@ -1190,13 +1198,11 @@ function KitchenCalculator({ showDesignSession, setShowDesignSession }) {
 
                 {/* Submit Button */}
                 <button 
-                  onClick={() => {
-                    alert('Kitchen design session booked! Our team will contact you within 24 hours to confirm your appointment.');
-                    setShowDesignSession(false);
-                  }}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
+                  onClick={handleLeadSubmit}
+                  disabled={submitting}
+                  className={`w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 ${submitting ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
-                  Book Free Kitchen Design Session
+                  {submitting ? 'Submitting...' : 'Book Free Kitchen Design Session'}
                 </button>
               </div>
             </div>

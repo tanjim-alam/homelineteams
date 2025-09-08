@@ -329,7 +329,7 @@ export default function CategoryPage() {
         <div className="container-custom py-3">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center justify-center gap-2 text-gray-700 hover:text-primary-600 w-full py-2 px-4 bg-gray-50 rounded-lg border transition-all duration-200 hover:bg-gray-100"
+            className="flex items-center justify-center gap-2 text-gray-700 hover:text-primary-600 w-full py-2 px-4 bg-gray-50 rounded-lg border transition-all duration-200 hover:bg-gray-100 cursor-pointer"
           >
             <Filter className="w-4 h-4" />
             <span className="font-medium">Filters</span>
@@ -348,53 +348,40 @@ export default function CategoryPage() {
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Left Sidebar Filters */}
           <div className={`lg:block ${showFilters ? 'block' : 'hidden'} lg:w-80 w-full`}>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:sticky lg:top-6">
+            <div className="bg-gradient-to-b from-blue-50 to-purple-50 rounded-2xl p-4 border border-blue-100 shadow-lg lg:sticky lg:top-8 lg:h-fit">
               {/* Filter Header */}
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-                {getActiveFiltersCount() > 0 && (
-                  <button
-                    onClick={clearAllFilters}
-                    className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                  >
-                    Clear All
-                  </button>
-                )}
+              <div className="text-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-1">Filters</h3>
+                <p className="text-sm text-gray-600">{products.length} products found</p>
               </div>
 
+              <div className="space-y-4">
               {/* Price Range Filter */}
               {filterOptions?.priceRange && (
-                <div className="border-b border-gray-100 pb-6 mb-6">
-                  <button
-                    onClick={() => toggleFilterSection('price')}
-                    className="flex items-center justify-between w-full text-left mb-4 group"
-                  >
-                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Price Range</span>
-                    {expandedFilters.price ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
-                  </button>
-                  
-                  {expandedFilters.price && (
-                    <div className="space-y-4">
-                      <div className="flex gap-3">
+                  <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1">
+                      <span className="w-4 h-4 text-blue-600">💰</span>
+                      Price Range
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
                         <div className="flex-1">
-                          <label className="block text-xs font-medium text-gray-600 mb-1">Min Price</label>
                           <input
                             type="number"
                             placeholder="Min"
                             min={filterOptions.priceRange.min}
                             max={filterOptions.priceRange.max}
-                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                            className="w-full p-2 border text-gray-700 border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                             onChange={(e) => handlePriceRangeChange(e.target.value, filters.priceRange?.max)}
                           />
                         </div>
                         <div className="flex-1">
-                          <label className="block text-xs font-medium text-gray-600 mb-1">Max Price</label>
                           <input
                             type="number"
                             placeholder="Max"
                             min={filterOptions.priceRange.min}
                             max={filterOptions.priceRange.max}
-                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                            className="w-full p-2 border text-gray-700 border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                             onChange={(e) => handlePriceRangeChange(filters.priceRange?.min, e.target.value)}
                           />
                         </div>
@@ -403,59 +390,47 @@ export default function CategoryPage() {
                         Range: ₹{filterOptions.priceRange.min} - ₹{filterOptions.priceRange.max}
                       </div>
                     </div>
-                  )}
                 </div>
               )}
 
               {/* Brand Filter */}
               {filterOptions?.brands && filterOptions.brands.length > 0 && (
-                <div className="border-b border-gray-100 pb-6 mb-6">
-                  <button
-                    onClick={() => toggleFilterSection('brands')}
-                    className="flex items-center justify-between w-full text-left mb-4 group"
-                  >
-                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Brand</span>
-                    {expandedFilters.brands ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
-                  </button>
-                  
-                  {expandedFilters.brands && (
-                    <div className="space-y-3">
+                  <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1">
+                      <span className="w-4 h-4 text-blue-600">🏷️</span>
+                      Brand
+                    </h4>
+                    <div className="space-y-2">
                       {filterOptions.brands.map((brand) => (
                         <label key={brand} className="flex items-center group cursor-pointer">
                           <input
                             type="checkbox"
                             checked={filters.brands?.includes(brand) || false}
                             onChange={() => handleBrandToggle(brand)}
-                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition-all duration-200"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
                           />
                           <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">{brand}</span>
                         </label>
                       ))}
                     </div>
-                  )}
                 </div>
               )}
 
               {/* Rating Filter */}
               {filterOptions?.ratings && filterOptions.ratings.length > 0 && (
-                <div className="border-b border-gray-100 pb-6 mb-6">
-                  <button
-                    onClick={() => toggleFilterSection('ratings')}
-                    className="flex items-center justify-between w-full text-left mb-4 group"
-                  >
-                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Rating</span>
-                    {expandedFilters.ratings ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
-                  </button>
-                  
-                  {expandedFilters.ratings && (
-                    <div className="space-y-3">
+                  <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1">
+                      <span className="w-4 h-4 text-blue-600">⭐</span>
+                      Rating
+                    </h4>
+                    <div className="space-y-2">
                       {filterOptions.ratings.map((rating) => (
                         <label key={rating} className="flex items-center group cursor-pointer">
                           <input
                             type="checkbox"
                             checked={filters.ratings?.includes(rating) || false}
                             onChange={() => handleRatingToggle(rating)}
-                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition-all duration-200"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
                           />
                           <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
                             {rating}★ & above
@@ -463,66 +438,54 @@ export default function CategoryPage() {
                         </label>
                       ))}
                     </div>
-                  )}
                 </div>
               )}
 
               {/* Availability Filter */}
               {filterOptions?.availability && filterOptions.availability.length > 0 && (
-                <div className="border-b border-gray-100 pb-6 mb-6">
-                  <button
-                    onClick={() => toggleFilterSection('availability')}
-                    className="flex items-center justify-between w-full text-left mb-4 group"
-                  >
-                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Availability</span>
-                    {expandedFilters.availability ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
-                  </button>
-                  
-                  {expandedFilters.availability && (
-                    <div className="space-y-3">
+                  <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1">
+                      <span className="w-4 h-4 text-blue-600">📦</span>
+                      Availability
+                    </h4>
+                    <div className="space-y-2">
                       {filterOptions.availability.map((availability) => (
                         <label key={availability} className="flex items-center group cursor-pointer">
                           <input
                             type="checkbox"
                             checked={filters.availability?.includes(availability) || false}
                             onChange={() => handleAvailabilityToggle(availability)}
-                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition-all duration-200"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
                           />
                           <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">{availability}</span>
                         </label>
                       ))}
                     </div>
-                  )}
                 </div>
               )}
 
-              {/* Important Filters (Material, Style, Color, etc.) */}
-              {filterOptions?.importantFilters && filterOptions.importantFilters.length > 0 && (
-                <div className="pb-6">
-                  <button
-                    onClick={() => toggleFilterSection('importantFilters')}
-                    className="flex items-center justify-between w-full text-left mb-4 group"
-                  >
-                    <span className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Product Features</span>
-                    {expandedFilters.importantFilters ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
-                  </button>
-                  
-                  {expandedFilters.importantFilters && (
-                    <div className="space-y-6">
+                {/* Important Filters (Material, Style, Color, etc.) */}
+                {filterOptions?.importantFilters && filterOptions.importantFilters.length > 0 && (
+                  <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1">
+                      <span className="w-4 h-4 text-blue-600">🎨</span>
+                      Product Features
+                    </h4>
+                    <div className="space-y-4">
                       {filterOptions.importantFilters.map((filter) => (
-                        <div key={filter.key} className="border-l-2 border-primary-200 pl-4">
-                          <h4 className="text-sm font-semibold text-gray-800 mb-3">
+                        <div key={filter.key} className="border-l-2 border-blue-200 pl-3">
+                          <h5 className="text-xs font-semibold text-gray-800 mb-2">
                             {filter.name}
                             {filter.unit && <span className="text-gray-500 ml-1">({filter.unit})</span>}
-                          </h4>
-                          <div className="space-y-2">
+                          </h5>
+                          <div className="space-y-1">
                             {filter.options.map((option) => (
                               <label key={option} className="flex items-center group cursor-pointer">
                                 <input
                                   type="checkbox"
                                   checked={filters[filter.key]?.includes(option) || false}
                                   onChange={() => handleImportantFilterToggle(filter.key, option)}
-                                  className="h-3 w-3 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition-all duration-200"
+                                  className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
                                 />
                                 <span className="ml-2 text-xs text-gray-600 group-hover:text-gray-800 transition-colors">{option}</span>
                               </label>
@@ -531,9 +494,22 @@ export default function CategoryPage() {
                         </div>
                       ))}
                     </div>
-                  )}
+                  </div>
+                )}
+
+                {/* Clear All Button */}
+                <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-blue-200">
+                  <button 
+                    onClick={clearAllFilters}
+                    className="flex items-center cursor-pointer justify-center gap-1 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Clear all
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -568,7 +544,7 @@ export default function CategoryPage() {
 
                   <div className="flex border border-gray-200 rounded-lg overflow-hidden">
                     <button
-                      className={`p-2 transition-all duration-200 ${
+                      className={`p-2 transition-all duration-200 cursor-pointer ${
                         viewMode === 'grid' 
                           ? 'bg-primary-600 text-white' 
                           : 'bg-white text-gray-600 hover:bg-gray-50'
@@ -578,9 +554,9 @@ export default function CategoryPage() {
                       <Grid className="w-4 h-4" />
                     </button>
                     <button
-                      className={`p-2 transition-all duration-200 ${
+                      className={`p-2 transition-all duration-200 cursor-pointer ${
                         viewMode === 'list' 
-                          ? 'bg-primary-600 text-white' 
+                          ? 'bg-primary-600 text-white'
                           : 'bg-white text-gray-600 hover:bg-gray-50'
                       }`}
                       onClick={() => setViewMode('list')}

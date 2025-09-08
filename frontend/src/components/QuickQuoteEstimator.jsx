@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import api from '@/services/api';
 import { Calculator, Home, ArrowRight, CheckCircle } from 'lucide-react';
 
 export default function QuickQuoteEstimator({ className = '' }) {
@@ -45,17 +46,30 @@ export default function QuickQuoteEstimator({ className = '' }) {
     });
   };
 
-  const handleBookSession = () => {
-    // Handle design session booking
-    alert('Design session booking request submitted! Our team will contact you within 24 hours to schedule your free consultation.');
-    setIsOpen(false);
-    setFormData({
-      homeType: '',
-      rooms: [],
-      purpose: '',
-      timeline: '',
-      contactInfo: { name: '', phone: '' }
-    });
+  const handleBookSession = async () => {
+    try {
+      const payload = {
+        name: formData.contactInfo?.name || '',
+        phone: formData.contactInfo?.phone || '',
+        city: formData.city || '',
+        homeType: formData.homeType || '',
+        sourcePage: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
+        message: 'QuickQuoteEstimator design session request',
+        meta: formData
+      };
+      await api.createLead(payload);
+      alert('Design session request submitted! Our team will contact you shortly.');
+      setIsOpen(false);
+      setFormData({
+        homeType: '',
+        rooms: [],
+        purpose: '',
+        timeline: '',
+        contactInfo: { name: '', phone: '' }
+      });
+    } catch (err) {
+      alert('Failed to submit request. Please try again.');
+    }
   };
 
   return (

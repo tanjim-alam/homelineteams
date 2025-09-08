@@ -156,6 +156,19 @@ class ApiService {
     return this.request(`/api/products/search?${searchParams}`);
   }
 
+  // Leads
+  async createLead(payload) {
+    return this.request('/api/leads', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  async getLeads() {
+    return this.request('/api/leads');
+  }
+
   // Collections
   async getCollections() {
     // For now, we'll use categories as collections

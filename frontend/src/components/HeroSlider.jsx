@@ -28,13 +28,6 @@ const HeroSlider = ({ isMobile = false, className = "" }) => {
     const sliderSettings = heroData.sliderSettings || {};
     if (!sliderSettings.autoSlide || activeBackgroundImages.length <= 1) return;
     
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => 
-        (prevIndex + 1) % activeBackgroundImages.length
-      );
-    }, sliderSettings.slideInterval || 3000);
-
-    return () => clearInterval(interval);
   }, [activeBackgroundImages.length, heroData.sliderSettings?.autoSlide, heroData.sliderSettings?.slideInterval]);
 
   // Show loading state
@@ -134,11 +127,11 @@ const HeroSlider = ({ isMobile = false, className = "" }) => {
       </div>
       
       {/* Update Notification */}
-      <UpdateNotification 
+      {/* <UpdateNotification 
         show={showNotification} 
         onClose={() => setShowNotification(false)}
         message="Hero section updated with latest changes!"
-      />
+      /> */}
     </div>
   );
 };

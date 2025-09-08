@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { 
   ChevronLeft, Star, Heart, ShoppingCart, Truck, Shield, 
-  RotateCcw, Package, Minus, Plus 
+  RotateCcw, Package, Minus, Plus, MessageCircle 
 } from 'lucide-react';
 import api from '@/services/api';
 import Metadata from '@/components/Metadata';
@@ -134,6 +134,31 @@ export default function ProductDetailPage() {
         button.className = button.className.replace('bg-green-600', 'bg-primary-600');
       }, 2000);
     }
+  };
+
+  const handleWhatsAppOrder = () => {
+    if (!product) return;
+    
+    // WhatsApp phone number (replace with your business number)
+    const whatsappNumber = '919611925494'; // Replace with your actual WhatsApp number
+    
+    // Create order message
+    const productName = product.name;
+    const productPrice = getCurrentPrice();
+    const selectedVariantText = selectedVariant ? `\n*Variant:* ${selectedVariant.name}` : '';
+    const selectedOptionsText = Object.keys(selectedOptions).length > 0 
+      ? `\n*Options:* ${Object.entries(selectedOptions).map(([key, value]) => `${key}: ${value}`).join(', ')}`
+      : '';
+    const quantityText = quantity > 1 ? `\n*Quantity:* ${quantity}` : '';
+    const totalPrice = productPrice * quantity;
+    
+    const message = `🛍️ *Order Inquiry*\n\n*Product:* ${productName}${selectedVariantText}${selectedOptionsText}${quantityText}\n*Price:* ₹${productPrice.toLocaleString()}${quantity > 1 ? `\n*Total:* ₹${totalPrice.toLocaleString()}` : ''}\n\nI'm interested in placing an order for this product. Please provide more details about availability and delivery.`;
+    
+    // Create WhatsApp URL
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    
+    // Open WhatsApp
+    window.open(whatsappUrl, '_blank');
   };
 
   const getCurrentPrice = () => selectedVariant?.price || product?.basePrice || 0;
@@ -520,38 +545,61 @@ export default function ProductDetailPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="space-y-3">
+                  {/* Primary Action Buttons */}
+                  <div className="flex gap-3">
                   <button 
                     onClick={handleAddToCart}
                     disabled={isOutOfStock()}
                     data-add-to-cart
-                    className={`flex-1 py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 ${
+                    className={`flex-1 py-1 px-6 sm:px-8 rounded-xl sm:rounded-xl font-bold text-base sm:text-lg transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 ${
                       isOutOfStock() 
                         ? 'bg-gray-300 text-gray-600 cursor-not-allowed' 
-                        : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-xl transform hover:scale-105'
+                        : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-xl transform hover:scale-105 cursor-pointer'
                     }`}
                   >
-                    <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
-                    {isOutOfStock() ? 'Out of Stock' : 'Add to Cart'}
-                  </button>
+                      <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
+                      {isOutOfStock() ? 'Out of Stock' : 'Add to Cart'}
+                    </button>
 
+                    <button
+                      onClick={() => {
+                        if (!addToWishlist || !removeFromWishlist) return;
+                        
+                        if (isWishlisted) {
+                          removeFromWishlist(product._id);
+                          setIsWishlisted(false);
+                        } else {
+                          addToWishlist(product);
+                          setIsWishlisted(true);
+                        }
+                      }}
+                      className={`p-2 sm:p-2 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 text-red-600 hover:shadow-lg cursor-pointer ${
+                        isWishlisted ? 'border-red-500 bg-red-50 text-red-600' : 'border-gray-300 hover:border-primary-300 hover:text-primary-600'
+                      }`}
+                    >
+                      <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${isWishlisted ? 'fill-current ' : ''}`} />
+                    </button>
+                  </div>
+
+                  {/* WhatsApp Order Button */}
                   <button
-                    onClick={() => {
-                      if (!addToWishlist || !removeFromWishlist) return;
-                      
-                      if (isWishlisted) {
-                        removeFromWishlist(product._id);
-                        setIsWishlisted(false);
-                      } else {
-                        addToWishlist(product);
-                        setIsWishlisted(true);
-                      }
-                    }}
-                    className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 text-red-600 hover:shadow-lg ${
-                      isWishlisted ? 'border-red-500 bg-red-50 text-red-600' : 'border-gray-300 hover:border-primary-300 hover:text-primary-600'
-                    }`}
+                    onClick={handleWhatsAppOrder}
+                    className="group relative w-full py-1 px-6 sm:px-8 rounded-2xl sm:rounded-3xl font-bold text-base sm:text-lg transition-all duration-300 flex items-center justify-center gap-3 sm:gap-4 bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:shadow-2xl transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden cursor-pointer"
                   >
-                    <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${isWishlisted ? 'fill-current ' : ''}`} />
+                    {/* Animated background effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    {/* Button content */}
+                    <div className="relative z-10 flex items-center gap-3 sm:gap-4">
+                      <div className="p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-colors duration-300">
+                        <MessageCircle className="w-4 h-4" />
+                      </div>
+                      <span className="font-semibold">Order via WhatsApp</span>
+                    </div>
+                    
+                    {/* Shine effect */}
+                    <div className="absolute inset-0 -top-1 -left-1 w-0 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:w-full transition-all duration-700 ease-out"></div>
                   </button>
                 </div>
               </div>

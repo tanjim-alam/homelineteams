@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Metadata from '@/components/Metadata';
 import Image from 'next/image';
+import api from '@/services/api';
 
 export default function TwoBHKPackagePage() {
   const [activeTab, setActiveTab] = useState('quote');
@@ -18,6 +19,45 @@ export default function TwoBHKPackagePage() {
     wardrobe1Type: '',
     wardrobe2Type: ''
   });
+  const [leadForm, setLeadForm] = useState({
+    name: '',
+    phone: '',
+    city: '',
+    homeType: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleLeadSubmit = async () => {
+    if (!leadForm.name || !leadForm.phone || !leadForm.homeType) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await api.createLead({
+        name: leadForm.name,
+        phone: leadForm.phone,
+        city: leadForm.city,
+        homeType: leadForm.homeType,
+        sourcePage: '2 BHK Package Page',
+        message: 'Interested in 2 BHK interior design package',
+        meta: {
+          packageConfig,
+          page: '2bhk-package'
+        }
+      });
+      
+      alert('2 BHK design session booked! Our team will contact you within 24 hours to confirm your appointment.');
+      setShowDesignSession(false);
+      setLeadForm({ name: '', phone: '', city: '', homeType: '' });
+    } catch (error) {
+      console.error('Error submitting lead:', error);
+      alert('Failed to submit your request. Please try again or contact us directly.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   // Sample package data based on Qarpentri's offerings
   const allPackages = [
@@ -444,51 +484,10 @@ export default function TwoBHKPackagePage() {
           </div>
         </div>
 
-        {/* Quote Estimator Section */}
-        <div id="quote-estimator" className="py-16 sm:py-20 bg-white">
-          <div className="container-custom px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                  Get Your Free 2 BHK Package Quote
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Answer a few questions and get an instant estimate for your complete 2 BHK project
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-200">
-                <TwoBHKQuoteEstimator />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Package Calculator Section */}
-        <div id="package-calculator" className="py-16 sm:py-20 bg-gray-50">
-          <div className="container-custom px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                  2 BHK Package Calculator
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Design your complete 2 BHK home and get accurate pricing instantly
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-200">
-                <TwoBHKPackageCalculator 
-                  showDesignSession={showDesignSession}
-                  setShowDesignSession={setShowDesignSession}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Stats Section */}
-        <div className="py-16 sm:py-20 bg-purple-600 text-white">
+        <div className="py-16 sm:py-20 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-600 hover:to-primary-700 text-white">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
@@ -534,9 +533,7 @@ export default function TwoBHKPackagePage() {
       </div>
     </>
   );
-}
-
-// 2 BHK Quote Estimator Component
+}// 2 BHK Quote Estimator Component
 function TwoBHKQuoteEstimator() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -823,7 +820,7 @@ function TwoBHKQuoteEstimator() {
 }
 
 // 2 BHK Package Calculator Component
-function TwoBHKPackageCalculator({ showDesignSession, setShowDesignSession }) {
+function TwoBHKPackageCalculator({ showDesignSession, setShowDesignSession, leadForm, setLeadForm, submitting, handleLeadSubmit }) {
   const [packageData, setPackageData] = useState({
     rooms: [],
     materials: {
@@ -1060,7 +1057,8 @@ function TwoBHKPackageCalculator({ showDesignSession, setShowDesignSession }) {
                     ].map((type) => (
                       <button
                         key={type.id}
-                        className="p-3 rounded-lg border-2 text-center transition-all duration-200 border-gray-200 hover:border-purple-300"
+                        onClick={() => setLeadForm({ ...leadForm, homeType: type.name })}
+                        className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${leadForm.homeType === type.name ? 'border-purple-400 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}
                       >
                         <div className="font-semibold text-gray-900 text-sm">{type.name}</div>
                         <div className="text-xs text-gray-600">{type.description}</div>
@@ -1075,6 +1073,8 @@ function TwoBHKPackageCalculator({ showDesignSession, setShowDesignSession }) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                     <input
                       type="text"
+                      value={leadForm.name}
+                      onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       placeholder="Enter your name"
                     />
@@ -1083,13 +1083,19 @@ function TwoBHKPackageCalculator({ showDesignSession, setShowDesignSession }) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                     <input
                       type="tel"
+                      value={leadForm.phone}
+                      onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       placeholder="Enter your phone"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                    <select className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <select 
+                      value={leadForm.city}
+                      onChange={(e) => setLeadForm({ ...leadForm, city: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
                       <option value="">Select your city</option>
                       <option value="mumbai">Mumbai</option>
                       <option value="delhi">Delhi</option>
@@ -1105,13 +1111,11 @@ function TwoBHKPackageCalculator({ showDesignSession, setShowDesignSession }) {
 
                 {/* Submit Button */}
                 <button 
-                  onClick={() => {
-                    alert('2 BHK design session booked! Our team will contact you within 24 hours to confirm your appointment.');
-                    setShowDesignSession(false);
-                  }}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
+                  onClick={handleLeadSubmit}
+                  disabled={submitting}
+                  className={`w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 ${submitting ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
-                  Book Free 2 BHK Design Session
+                  {submitting ? 'Submitting...' : 'Book Free 2 BHK Design Session'}
                 </button>
               </div>
             </div>
@@ -1121,3 +1125,5 @@ function TwoBHKPackageCalculator({ showDesignSession, setShowDesignSession }) {
     </div>
   );
 }
+
+
