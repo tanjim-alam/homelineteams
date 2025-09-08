@@ -267,55 +267,6 @@ export default function KitchenCollectionPage() {
       />
       
       <div className="min-h-screen bg-gray-50">
-        {/* Hero Section */}
-        {/* <div className="relative text-white overflow-hidden min-h-[600px] flex items-center">
-         
-          <div className="absolute inset-0">
-            <Image 
-              src="/interior-design-img.jpg" 
-              alt="Kitchen Collection Hero Background" 
-              fill
-              className="object-cover"
-              priority
-            />
-            
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/50 via-red-700/50 to-orange-800/80"></div>
-          </div>
-          
-         
-          <div className="absolute inset-0">
-            <div className="absolute top-20 right-10 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
-            <div className="absolute bottom-20 left-10 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
-          </div>
-          
-          <div className="container-custom py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-                Transform Your Kitchen with 
-                <span className="block text-yellow-300">Modular Design Excellence</span>
-              </h1>
-              <p className="text-lg sm:text-xl text-orange-100 mb-8 max-w-2xl mx-auto">
-                Get instant quotes, explore modular kitchen designs, and work with our expert designers to create your dream kitchen.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link 
-                  href="#quote-estimator"
-                  className="bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold px-8 py-4 text-lg rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-                >
-                  Get Your Free Kitchen Quote
-                </Link>
-                <Link 
-                  href="#kitchen-calculator"
-                  className="btn-secondary border-white text-white hover:bg-white hover:text-orange-600 px-8 py-4 text-lg font-semibold"
-                >
-                  Kitchen Calculator
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div> */}
-
         {/* Product Configuration Tool with Fixed Sidebar */}
         <div className="py-16 bg-white">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
@@ -485,10 +436,8 @@ export default function KitchenCollectionPage() {
           </div>
         </div>
 
-       
-
         {/* Stats Section */}
-        <div className="py-16 sm:py-20 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-600 hover:to-primary-700  text-white">
+        <div className="py-16 sm:py-20 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-600 hover:to-primary-700 text-white">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
@@ -531,684 +480,103 @@ export default function KitchenCollectionPage() {
             </div>
           </div>
         </div>
+
+        {/* Design Session Modal */}
+        {showDesignSession && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Book Free Kitchen Design Session</h2>
+                  <button 
+                    onClick={() => setShowDesignSession(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Home Type Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Home Type</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { id: '1bhk', name: '1 BHK', description: 'Perfect for small families' },
+                        { id: '2bhk', name: '2 BHK', description: 'Ideal for growing families' },
+                        { id: '3bhk', name: '3 BHK', description: 'Spacious family homes' },
+                        { id: '4bhk', name: '4 BHK', description: 'Luxury family living' }
+                      ].map((type) => (
+                        <button
+                          key={type.id}
+                          onClick={() => setLeadForm({ ...leadForm, homeType: type.name })}
+                          className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${leadForm.homeType === type.name ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:border-orange-300'}`}
+                        >
+                          <div className="font-semibold text-gray-900 text-sm">{type.name}</div>
+                          <div className="text-xs text-gray-600">{type.description}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Contact Information */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                      <input
+                        type="text"
+                        value={leadForm.name}
+                        onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="Enter your name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                      <input
+                        type="tel"
+                        value={leadForm.phone}
+                        onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="Enter your phone"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                      <select 
+                        value={leadForm.city}
+                        onChange={(e) => setLeadForm({ ...leadForm, city: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      >
+                        <option value="">Select your city</option>
+                        <option value="mumbai">Mumbai</option>
+                        <option value="delhi">Delhi</option>
+                        <option value="bangalore">Bangalore</option>
+                        <option value="hyderabad">Hyderabad</option>
+                        <option value="chennai">Chennai</option>
+                        <option value="pune">Pune</option>
+                        <option value="kolkata">Kolkata</option>
+                        <option value="ahmedabad">Ahmedabad</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button 
+                    onClick={handleLeadSubmit}
+                    disabled={submitting}
+                    className={`w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 ${submitting ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    {submitting ? 'Submitting...' : 'Book Free Kitchen Design Session'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
-  );
-}
-
-// Quote Estimator Component
-function QuoteEstimator() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    homeType: '',
-    rooms: [],
-    purpose: '',
-    timeline: '',
-    style: '',
-    contactInfo: {
-      name: '',
-      email: '',
-      phone: '',
-      city: ''
-    }
-  });
-
-  const steps = [
-    { id: 1, title: 'Kitchen Type', description: 'Select your kitchen type' },
-    { id: 2, title: 'Layout', description: 'Choose kitchen layout' },
-    { id: 3, title: 'Style & Materials', description: 'Set your design preferences' },
-    { id: 4, title: 'Contact Info', description: 'Share your details' }
-  ];
-
-  const kitchenTypes = [
-    { id: 'small', name: 'Small Kitchen', description: 'Perfect for compact spaces' },
-    { id: 'medium', name: 'Medium Kitchen', description: 'Ideal for average homes' },
-    { id: 'large', name: 'Large Kitchen', description: 'Spacious family kitchens' },
-    { id: 'luxury', name: 'Luxury Kitchen', description: 'Premium standalone kitchens' }
-  ];
-
-  const layouts = [
-    { id: 'straight', name: 'Straight Line', icon: '📏' },
-    { id: 'l-shape', name: 'L-Shape', icon: '📐' },
-    { id: 'u-shape', name: 'U-Shape', icon: '🔄' },
-    { id: 'island', name: 'Island', icon: '🏝️' }
-  ];
-
-  const handleNext = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
-  };
-
-  const handlePrev = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
-
-  const getProjectType = () => {
-    const kitchenType = kitchenTypes.find(h => h.id === formData.homeType);
-    return kitchenType ? `${kitchenType.name} Design` : 'Kitchen Design Project';
-  };
-
-  return (
-    <div className="max-w-2xl mx-auto">
-      {/* Progress Bar */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          {steps.map((step) => (
-            <div key={step.id} className="flex flex-col items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                currentStep >= step.id 
-                  ? 'bg-orange-600 text-white' 
-                  : 'bg-gray-200 text-gray-600'
-              }`}>
-                {currentStep > step.id ? <CheckCircle className="w-5 h-5" /> : step.id}
-              </div>
-              <div className="text-xs text-center mt-2 hidden sm:block">
-                <div className="font-medium">{step.title}</div>
-                <div className="text-gray-500">{step.description}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-orange-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 4) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-
-      {/* Step Content */}
-      <div className="mb-8">
-        {currentStep === 1 && (
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">What type of kitchen are you designing?</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {kitchenTypes.map((type) => (
-                <button
-                  key={type.id}
-                  onClick={() => setFormData({...formData, homeType: type.id})}
-                  className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                    formData.homeType === type.id
-                      ? 'border-orange-600 bg-orange-50'
-                      : 'border-gray-200 hover:border-orange-300'
-                  }`}
-                >
-                  <div className="font-semibold text-gray-900">{type.name}</div>
-                  <div className="text-sm text-gray-600">{type.description}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {currentStep === 2 && (
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Which layout would you prefer?</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {layouts.map((layout) => (
-                <button
-                  key={layout.id}
-                  onClick={() => setFormData({...formData, rooms: [layout.id]})}
-                  className={`p-4 rounded-xl border-2 text-center transition-all duration-200 ${
-                    formData.rooms.includes(layout.id)
-                      ? 'border-orange-600 bg-orange-50'
-                      : 'border-gray-200 hover:border-orange-300'
-                  }`}
-                >
-                  <div className="text-2xl mb-2">{layout.icon}</div>
-                  <div className="text-sm font-medium text-gray-900">{layout.name}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {currentStep === 3 && (
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Style & Design Preferences</h3>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Design Style</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {['Modern', 'Traditional', 'Contemporary', 'Minimalist', 'Scandinavian', 'Industrial'].map((style) => (
-                    <button
-                      key={style}
-                      onClick={() => setFormData({...formData, style})}
-                      className={`p-3 rounded-lg border-2 text-center text-gray-700 transition-all duration-200 ${
-                        formData.style === style
-                          ? 'border-orange-600 bg-orange-50'
-                          : 'border-gray-200 hover:border-orange-300'
-                      }`}
-                    >
-                      {style}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Project Timeline</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {['ASAP', '1-2 months', '3-6 months', '6+ months'].map((timeline) => (
-                    <button
-                      key={timeline}
-                      onClick={() => setFormData({...formData, timeline})}
-                      className={`p-3 rounded-lg border-2 text-center text-gray-700 transition-all duration-200 ${
-                        formData.timeline === timeline
-                          ? 'border-orange-600 bg-orange-50'
-                          : 'border-gray-200 hover:border-orange-300'
-                      }`}
-                    >
-                      {timeline}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentStep === 4 && (
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Share your contact details</h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    value={formData.contactInfo.name}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      contactInfo: {...formData.contactInfo, name: e.target.value}
-                    })}
-                    className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Enter your name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={formData.contactInfo.phone}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      contactInfo: {...formData.contactInfo, phone: e.target.value}
-                    })}
-                    className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="+91 98765 43210"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                  <input
-                    type="email"
-                    value={formData.contactInfo.email}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      contactInfo: {...formData.contactInfo, email: e.target.value}
-                    })}
-                    className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="your@email.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                  <input
-                    type="text"
-                    value={formData.contactInfo.city}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      contactInfo: {...formData.contactInfo, city: e.target.value}
-                    })}
-                    className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Bangalore"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation Buttons */}
-      <div className="flex justify-between">
-        <button
-          onClick={handlePrev}
-          disabled={currentStep === 1}
-          className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Previous
-        </button>
-        
-        {currentStep < 4 ? (
-          <button
-            onClick={handleNext}
-            className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 flex items-center gap-2 rounded-lg"
-          >
-            Next Step
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              alert('Kitchen quote request submitted! Our team will contact you within 24 hours.');
-            }}
-            className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 flex items-center justify-center gap-2 rounded-lg"
-          >
-            Get Free Quote
-            <CheckCircle className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-
-      {/* Project Summary */}
-      {currentStep >= 2 && (
-        <div className="mt-8 p-4 bg-orange-50 rounded-xl border border-orange-200">
-          <div className="text-center">
-            <div className="text-sm text-orange-600 font-medium mb-1">Project Summary</div>
-            <div className="text-lg font-bold text-orange-700">{getProjectType()}</div>
-            <div className="text-xs text-orange-600 mt-1">Our design team will provide a detailed quote after consultation</div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Kitchen Calculator Component
-function KitchenCalculator({ showDesignSession, setShowDesignSession, leadForm, setLeadForm, submitting, handleLeadSubmit }) {
-  const [kitchenData, setKitchenData] = useState({
-    size: '',
-    layout: '',
-    materials: {
-      cabinets: '',
-      countertop: '',
-      backsplash: '',
-      flooring: ''
-    },
-    appliances: [],
-    features: []
-  });
-
-  const layouts = [
-    { id: 'straight', name: 'Straight Line', icon: '📏' },
-    { id: 'l-shape', name: 'L-Shape', icon: '📐' },
-    { id: 'u-shape', name: 'U-Shape', icon: '🔄' },
-    { id: 'island', name: 'Island', icon: '🏝️' }
-  ];
-
-  const materials = {
-    cabinets: [
-      { id: 'laminate', name: 'Laminate', quality: 'Good', durability: '5-7 years' },
-      { id: 'acrylic', name: 'Acrylic', quality: 'Better', durability: '8-10 years' },
-      { id: 'wood', name: 'Solid Wood', quality: 'Best', durability: '15+ years' },
-      { id: 'pvc', name: 'PVC', quality: 'Good', durability: '6-8 years' }
-    ],
-    countertop: [
-      { id: 'granite', name: 'Granite', quality: 'Good', durability: '20+ years' },
-      { id: 'quartz', name: 'Quartz', quality: 'Better', durability: '25+ years' },
-      { id: 'marble', name: 'Marble', quality: 'Best', durability: '30+ years' },
-      { id: 'ceramic', name: 'Ceramic', quality: 'Basic', durability: '10-15 years' }
-    ],
-    backsplash: [
-      { id: 'tiles', name: 'Ceramic Tiles', quality: 'Good', durability: '10+ years' },
-      { id: 'glass', name: 'Glass', quality: 'Better', durability: '15+ years' },
-      { id: 'stone', name: 'Natural Stone', quality: 'Best', durability: '20+ years' },
-      { id: 'paint', name: 'Paint', quality: 'Basic', durability: '3-5 years' }
-    ],
-    flooring: [
-      { id: 'tiles', name: 'Ceramic Tiles', quality: 'Good', durability: '15+ years' },
-      { id: 'vitrified', name: 'Vitrified Tiles', quality: 'Better', durability: '20+ years' },
-      { id: 'wood', name: 'Wooden', quality: 'Best', durability: '25+ years' },
-      { id: 'marble', name: 'Marble', quality: 'Better', durability: '30+ years' }
-    ]
-  };
-
-  const appliances = [
-    { id: 'hob', name: 'Gas Hob', category: 'Cooking', essential: true },
-    { id: 'hood', name: 'Chimney', category: 'Ventilation', essential: true },
-    { id: 'oven', name: 'Built-in Oven', category: 'Cooking', essential: false },
-    { id: 'microwave', name: 'Microwave', category: 'Cooking', essential: false },
-    { id: 'refrigerator', name: 'Refrigerator', category: 'Storage', essential: true },
-    { id: 'dishwasher', name: 'Dishwasher', category: 'Cleaning', essential: false }
-  ];
-
-  const features = [
-    { id: 'soft-close', name: 'Soft Close Hinges', category: 'Hardware' },
-    { id: 'pull-out', name: 'Pull-out Drawers', category: 'Storage' },
-    { id: 'corner', name: 'Corner Solutions', category: 'Storage' },
-    { id: 'lighting', name: 'LED Lighting', category: 'Lighting' },
-    { id: 'water', name: 'Water Purifier', category: 'Utility' }
-  ];
-
-  const getKitchenSummary = () => {
-    const sizeMap = {
-      'small': 'Small Kitchen (6x8 ft)',
-      'medium': 'Medium Kitchen (8x10 ft)',
-      'large': 'Large Kitchen (10x12 ft)'
-    };
-    
-    const layoutMap = {
-      'straight': 'Straight Line Layout',
-      'l-shape': 'L-Shape Layout',
-      'u-shape': 'U-Shape Layout',
-      'island': 'Island Layout'
-    };
-    
-    return {
-      size: sizeMap[kitchenData.size] || 'Kitchen',
-      layout: layoutMap[kitchenData.layout] || 'Layout',
-      appliances: kitchenData.appliances.length,
-      features: kitchenData.features.length
-    };
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Configuration Panel */}
-        <div className="space-y-6">
-          {/* Kitchen Size */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Kitchen Size</h3>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { id: 'small', name: 'Small', desc: '6x8 ft' },
-                { id: 'medium', name: 'Medium', desc: '8x10 ft' },
-                { id: 'large', name: 'Large', desc: '10x12 ft' }
-              ].map((size) => (
-                <button
-                  key={size.id}
-                  onClick={() => setKitchenData({...kitchenData, size: size.id})}
-                  className={`p-4 rounded-lg border-2 text-center transition-all duration-200 ${
-                    kitchenData.size === size.id
-                      ? 'border-orange-600 bg-orange-50'
-                      : 'border-gray-200 hover:border-orange-300'
-                  }`}
-                >
-                  <div className="font-semibold text-gray-900">{size.name}</div>
-                  <div className="text-sm text-gray-600">{size.desc}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Layout */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Kitchen Layout</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {layouts.map((layout) => (
-                <button
-                  key={layout.id}
-                  onClick={() => setKitchenData({...kitchenData, layout: layout.id})}
-                  className={`p-4 rounded-lg border-2 text-center transition-all duration-200 ${
-                    kitchenData.layout === layout.id
-                      ? 'border-orange-600 bg-orange-50'
-                      : 'border-gray-200 hover:border-orange-300'
-                  }`}
-                >
-                  <div className="text-2xl mb-2">{layout.icon}</div>
-                  <div className="text-sm font-medium text-gray-900">{layout.name}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Materials */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Materials & Finishes</h3>
-            <div className="space-y-4">
-              {Object.entries(materials).map(([category, options]) => (
-                <div key={category}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
-                    {category.replace(/([A-Z])/g, ' $1')}
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {options.map((option) => (
-                      <button
-                        key={option.id}
-                        onClick={() => setKitchenData({
-                          ...kitchenData,
-                          materials: {...kitchenData.materials, [category]: option.id}
-                        })}
-                        className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${
-                          kitchenData.materials[category] === option.id
-                            ? 'border-orange-600 bg-orange-50'
-                            : 'border-gray-200 hover:border-orange-300'
-                        }`}
-                      >
-                        <div className="text-sm font-medium text-gray-900">{option.name}</div>
-                        <div className="text-xs text-gray-600">Quality: {option.quality}</div>
-                        <div className="text-xs text-gray-500">Durability: {option.durability}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Appliances */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Appliances</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {appliances.map((appliance) => (
-                <button
-                  key={appliance.id}
-                  onClick={() => {
-                    const newAppliances = kitchenData.appliances.includes(appliance.id)
-                      ? kitchenData.appliances.filter(a => a !== appliance.id)
-                      : [...kitchenData.appliances, appliance.id];
-                    setKitchenData({...kitchenData, appliances: newAppliances});
-                  }}
-                  className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${
-                    kitchenData.appliances.includes(appliance.id)
-                      ? 'border-orange-600 bg-orange-50'
-                      : 'border-gray-200 hover:border-orange-300'
-                  }`}
-                >
-                  <div className="text-sm font-medium text-gray-900">{appliance.name}</div>
-                  <div className="text-xs text-gray-600">{appliance.category}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Features */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Features</h3>
-            <div className="grid grid-cols-1 gap-3">
-              {features.map((feature) => (
-                <button
-                  key={feature.id}
-                  onClick={() => {
-                    const newFeatures = kitchenData.features.includes(feature.id)
-                      ? kitchenData.features.filter(f => f !== feature.id)
-                      : [...kitchenData.features, feature.id];
-                    setKitchenData({...kitchenData, features: newFeatures});
-                  }}
-                  className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${
-                    kitchenData.features.includes(feature.id)
-                      ? 'border-orange-600 bg-orange-50'
-                      : 'border-gray-200 hover:border-orange-300'
-                  }`}
-                >
-                  <div className="text-sm font-medium text-gray-900">{feature.name}</div>
-                  <div className="text-xs text-gray-600">{feature.category}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Project Summary */}
-        <div className="lg:sticky lg:top-8">
-          <div className="bg-gray-50 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Kitchen Design Summary</h3>
-            
-            <div className="space-y-4 mb-6">
-              {(() => {
-                const summary = getKitchenSummary();
-                return (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Kitchen Size</span>
-                      <span className="font-medium">{summary.size}</span>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Layout</span>
-                      <span className="font-medium">{summary.layout}</span>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Selected Appliances</span>
-                      <span className="font-medium">{summary.appliances} items</span>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Additional Features</span>
-                      <span className="font-medium">{summary.features} features</span>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-
-            <div className="border-t border-gray-200 pt-4 mb-6">
-              <div className="text-center">
-                <div className="text-lg font-bold text-gray-900 mb-2">Ready for Quote?</div>
-                <p className="text-sm text-gray-500">
-                  Our design team will provide a detailed quote after consultation
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <button 
-                onClick={() => setShowDesignSession(true)}
-                className="w-full bg-orange-400 hover:bg-orange-500 text-orange-900 font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
-              >
-                BOOK FREE DESIGN SESSION
-              </button>
-              <button className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg">
-                Get Detailed Quote
-              </button>
-              <button className="w-full border border-orange-600 text-orange-600 hover:bg-orange-50 py-3 rounded-lg">
-                Schedule Site Visit
-              </button>
-            </div>
-
-            <div className="mt-6 p-4 bg-orange-50 rounded-lg">
-              <div className="flex items-center gap-2 text-orange-700 font-medium mb-2">
-                <Star className="w-4 h-4" />
-                Free Design Consultation
-              </div>
-              <p className="text-sm text-orange-600">
-                Get a personalized 3D design and detailed quote from our expert designers.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Design Session Modal */}
-      {showDesignSession && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Book Free Kitchen Design Session</h2>
-                <button 
-                  onClick={() => setShowDesignSession(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                {/* Home Type Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Home Type</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { id: '1bhk', name: '1 BHK', description: 'Perfect for small families' },
-                      { id: '2bhk', name: '2 BHK', description: 'Ideal for growing families' },
-                      { id: '3bhk', name: '3 BHK', description: 'Spacious family homes' },
-                      { id: '4bhk', name: '4 BHK', description: 'Luxury family living' }
-                    ].map((type) => (
-                      <button
-                        key={type.id}
-                        onClick={() => setLeadForm({ ...leadForm, homeType: type.name })}
-                        className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${leadForm.homeType === type.name ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:border-orange-300'}`}
-                      >
-                        <div className="font-semibold text-gray-900 text-sm">{type.name}</div>
-                        <div className="text-xs text-gray-600">{type.description}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={leadForm.name}
-                      onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Enter your name"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                    <input
-                      type="tel"
-                      value={leadForm.phone}
-                      onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Enter your phone"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                    <select 
-                      value={leadForm.city}
-                      onChange={(e) => setLeadForm({ ...leadForm, city: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    >
-                      <option value="">Select your city</option>
-                      <option value="mumbai">Mumbai</option>
-                      <option value="delhi">Delhi</option>
-                      <option value="bangalore">Bangalore</option>
-                      <option value="hyderabad">Hyderabad</option>
-                      <option value="chennai">Chennai</option>
-                      <option value="pune">Pune</option>
-                      <option value="kolkata">Kolkata</option>
-                      <option value="ahmedabad">Ahmedabad</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <button 
-                  onClick={handleLeadSubmit}
-                  disabled={submitting}
-                  className={`w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 ${submitting ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
-                >
-                  {submitting ? 'Submitting...' : 'Book Free Kitchen Design Session'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
   );
 }
