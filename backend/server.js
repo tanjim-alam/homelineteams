@@ -16,6 +16,8 @@ const { uploadProduct, debugUpload, uploadCategory, uploadSingle } = require('./
 // Routes
 const categoryRoutes = require('./routes/category.routes');
 const productRoutes = require('./routes/product.routes');
+// const kitchenProductRoutes = require('./routes/kitchenProduct.routes');
+const wardrobeProductRoutes = require('./routes/wardrobeProduct.routes');
 const orderRoutes = require('./routes/order.routes');
 const heroSectionRoutes = require('./routes/heroSection.routes');
 const leadRoutes = require('./routes/lead.routes');
@@ -113,6 +115,8 @@ const authRoutes = require('./routes/auth.routes');
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
+// app.use('/api/kitchen-products', kitchenProductRoutes);
+app.use('/api/wardrobe-products', wardrobeProductRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/hero-section', heroSectionRoutes);
 app.use('/api/leads', leadRoutes);

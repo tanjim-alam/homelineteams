@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Home, Calculator, Palette, Ruler, 
@@ -20,6 +20,30 @@ export default function OneBHKPackagePage() {
     kitchenType: '',
     wardrobeType: ''
   });
+  const [kitchenProducts, setKitchenProducts] = useState([]);
+  const [wardrobeProducts, setWardrobeProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const [kitchens, wardrobes] = await Promise.all([
+          api.request('/api/kitchen-products'),
+          api.request('/api/wardrobe-products')
+        ]);
+        setKitchenProducts(Array.isArray(kitchens) ? kitchens : []);
+        setWardrobeProducts(Array.isArray(wardrobes) ? wardrobes : []);
+      } catch (e) {
+        console.error('Failed to load products for 1 BHK page', e);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const handleLeadSubmit = async () => {
     if (!leadForm.name?.trim() || !leadForm.phone?.trim()) {
@@ -47,136 +71,42 @@ export default function OneBHKPackagePage() {
     }
   };
 
-  // Sample package data based on Qarpentri's 1 BHK offerings
-  const allPackages = [
-    {
-      name: "Forest Green And Cream 1 BHK Kitchen - Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 86999,
-      originalPrice: 91499,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "L Shape",
-      wardrobeType: "2 Door"
-    },
-    {
-      name: "Light Wood 1 BHK Kitchen - Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 95599,
-      originalPrice: 100624,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "Parallel Shape",
-      wardrobeType: "3 Door"
-    },
-    {
-      name: "Cream 1 BHK Kitchen-Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 107499,
-      originalPrice: 113124,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "Straight Shape",
-      wardrobeType: "4 Door"
-    },
-    {
-      name: "Ebony 1 BHK Kitchen-Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 118299,
-      originalPrice: 124499,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "L Shape",
-      wardrobeType: "3 Door"
-    },
-    {
-      name: "Neutral And Red 1BHK Kitchen - Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 149599,
-      originalPrice: 157374,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "Parallel Shape",
-      wardrobeType: "4 Door"
-    },
-    {
-      name: "Mango And Brown Teak 1 BHK Kitchen - Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 151199,
-      originalPrice: 159124,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "Straight Shape",
-      wardrobeType: "2 Door"
-    },
-    {
-      name: "Mango And Cream 1 BHK Kitchen - Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 152099,
-      originalPrice: 159999,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "L Shape",
-      wardrobeType: "3 Door"
-    },
-    {
-      name: "Brown Teak 1 BHK Kitchen - Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 152199,
-      originalPrice: 160124,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "Parallel Shape",
-      wardrobeType: "4 Door"
-    },
-    {
-      name: "Cream and Pine 1 BHK Kitchen-Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 153599,
-      originalPrice: 161624,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "Straight Shape",
-      wardrobeType: "2 Door"
-    },
-    {
-      name: "Berry 1 BHK Kitchen - wardrobe Package",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 164299,
-      originalPrice: 172874,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "L Shape",
-      wardrobeType: "4 Door"
-    },
-    {
-      name: "Dark Walnut 1 BHK Kitchen-Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 164399,
-      originalPrice: 172999,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "Parallel Shape",
-      wardrobeType: "3 Door"
-    },
-    {
-      name: "Light Grey 1BHK Kitchen - Wardrobe Package",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 200799,
-      originalPrice: 211249,
-      wardrobes: "1",
-      kitchen: "1",
-      kitchenType: "Straight Shape",
-      wardrobeType: "4 Door"
-    }
-  ];
+  // Build combinations from kitchens + wardrobes
+  const kitchensFiltered = kitchenProducts.filter(k => !packageConfig.kitchenType || (k.defaultLayout?.name === packageConfig.kitchenType));
+  const wardrobesFiltered = wardrobeProducts.filter(w => !packageConfig.wardrobeType || (w.defaultType && w.defaultType.replace('-',' ').toLowerCase().includes(packageConfig.wardrobeType.split(' ')[0].toLowerCase())));
 
-  // Filter packages based on configuration
-  const filteredPackages = allPackages.filter(pkg => {
-    const kitchenMatch = !packageConfig.kitchenType || pkg.kitchenType === packageConfig.kitchenType;
-    const wardrobeMatch = !packageConfig.wardrobeType || pkg.wardrobeType === packageConfig.wardrobeType;
-    return kitchenMatch && wardrobeMatch;
+  const combined = [];
+  kitchensFiltered.forEach(k => {
+    if (wardrobesFiltered.length === 0) {
+      combined.push({
+        kitchenTitle: k.name,
+        wardrobeTitle: '',
+        image: k.mainImages?.[0],
+        price: parseFloat(k.basePrice || 0),
+        originalPrice: k.mrp || null,
+        wardrobes: '1',
+        kitchen: '1',
+        kitchenType: k.defaultLayout?.name || '',
+        wardrobeType: ''
+      });
+    } else {
+      wardrobesFiltered.slice(0, 3).forEach(w => {
+        combined.push({
+          kitchenTitle: k.name,
+          wardrobeTitle: w.name,
+          image: k.mainImages?.[0] || w.mainImages?.[0],
+          price: (parseFloat(k.basePrice || 0) + parseFloat(w.basePrice || 0)),
+          originalPrice: (parseFloat(k.mrp || 0) || 0) + (parseFloat(w.mrp || 0) || 0) || null,
+          wardrobes: '1',
+          kitchen: '1',
+          kitchenType: k.defaultLayout?.name || '',
+          wardrobeType: w.defaultType || ''
+        });
+      });
+    }
   });
+
+  const filteredPackages = combined;
 
   return (
     <>
@@ -337,7 +267,12 @@ export default function OneBHKPackagePage() {
                           </div>
                         </div>
                         <div className="p-4">
-                          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm">{pkg.name}</h3>
+                          <div className="mb-2">
+                            <div className="font-semibold text-gray-900 text-sm line-clamp-2">{pkg.kitchenTitle || pkg.name}</div>
+                            {pkg.wardrobeTitle && (
+                              <div className="text-xs text-gray-700 line-clamp-2">{pkg.wardrobeTitle}</div>
+                            )}
+                          </div>
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-xs text-gray-600">{pkg.wardrobes} Wardrobe</span>
                             <span className="text-xs text-gray-600">•</span>

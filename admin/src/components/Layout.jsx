@@ -13,7 +13,8 @@ import {
   Menu, 
   X,
   Settings,
-  Image
+  Image,
+  ChefHat
 } from 'lucide-react'
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -24,6 +25,8 @@ const Sidebar = ({ isOpen, onClose }) => {
     { path: '/dashboard', label: 'Dashboards', icon: BarChart3 },
     { path: '/categories', label: 'Categories', icon: FolderOpen },
     { path: '/products', label: 'Products', icon: Package },
+    { path: '/kitchen-products', label: 'Kitchen Products', icon: ChefHat },
+    { path: '/wardrobe-products', label: 'Wardrobe Products', icon: Settings },
     { path: '/orders', label: 'Orders', icon: ShoppingCart },
     { path: '/hero-section', label: 'Hero Section', icon: Image },
     { path: '/leads', label: 'Leads', icon: User },
@@ -111,6 +114,7 @@ const Header = ({ onMenuClick }) => {
       '/dashboard': 'Dashboard',
       '/categories': 'Categories',
       '/products': 'Products',
+      '/kitchen-products': 'Kitchen Products',
       '/orders': 'Orders',
       '/hero-section': 'Hero Section',
       '/leads': 'Leads'

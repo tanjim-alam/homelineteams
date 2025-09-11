@@ -17,7 +17,16 @@ export default function TwoBHKPackagePage() {
   const [packageConfig, setPackageConfig] = useState({
     kitchenType: '',
     wardrobe1Type: '',
-    wardrobe2Type: ''
+    wardrobe2Type: '',
+    kitchenLayout: '',
+    kitchenMaterials: {
+      cabinets: '',
+      countertop: '',
+      backsplash: '',
+      flooring: ''
+    },
+    kitchenAppliances: [],
+    kitchenFeatures: []
   });
   const [leadForm, setLeadForm] = useState({
     name: '',

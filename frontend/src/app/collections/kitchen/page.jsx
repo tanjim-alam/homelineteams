@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Home, Calculator, Palette, Ruler, 
   ArrowRight, CheckCircle, Star, 
-  Users, Award, Clock, Shield, ChefHat
+  Users, Award, Clock, Shield, ChefHat, Loader2
 } from 'lucide-react';
 import Metadata from '@/components/Metadata';
 import Image from 'next/image';
@@ -17,7 +17,12 @@ export default function KitchenCollectionPage() {
   const [kitchenConfig, setKitchenConfig] = useState({
     kitchenType: '',
     layout: '',
-    material: ''
+    material: '',
+    suitableFor: '',
+    style: '',
+    colorScheme: '',
+    budgetMin: '',
+    budgetMax: ''
   });
   const [leadForm, setLeadForm] = useState({
     name: '',
@@ -26,6 +31,43 @@ export default function KitchenCollectionPage() {
     homeType: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [kitchenProducts, setKitchenProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Fetch kitchen products from backend (with server-side filtering)
+  useEffect(() => {
+    fetchKitchenProducts();
+  }, [kitchenConfig.kitchenType]);
+
+  const fetchKitchenProducts = async () => {
+    try {
+      setLoading(true);
+      // Map UI labels to backend layout types
+      const layoutMap = {
+        'L Shape': 'l-shape',
+        'Parallel Shape': 'parallel',
+        'Straight Shape': 'straight'
+      };
+      let endpoint = '/api/kitchen-products';
+      if (kitchenConfig.kitchenType) {
+        const layout = layoutMap[kitchenConfig.kitchenType];
+        if (layout) {
+          const layoutParam = encodeURIComponent(JSON.stringify([layout]));
+          endpoint = `/api/kitchen-products?layout=${layoutParam}`;
+        }
+      }
+      const response = await api.request(endpoint);
+      setKitchenProducts(Array.isArray(response) ? response : []);
+    } catch (err) {
+      console.error('Error fetching kitchen products:', err);
+      setError('Failed to load kitchen products. Please try again later.');
+      // Disable local sample fallback to avoid showing outdated demo items
+      setKitchenProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLeadSubmit = async () => {
     if (!leadForm.name || !leadForm.phone || !leadForm.homeType) {
@@ -59,203 +101,14 @@ export default function KitchenCollectionPage() {
     }
   };
 
-  // Sample kitchen data based on Qarpentri's offerings
-  const allKitchenPackages = [
-    {
-      name: "An L-Shaped Kitchen In Forest Green And Frosty White Laminates",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 149199,
-      originalPrice: 156999,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "A Parallel-Shaped Kitchen In Light Grey And Cream Coloured Laminates",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 142399,
-      originalPrice: 149874,
-      kitchenType: "Parallel Shape"
-    },
-    {
-      name: "A Parallel Shaped Kitchen In Kingfisher Blue Paired With Frosted Glass Shutters",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 128499,
-      originalPrice: 135249,
-      kitchenType: "Parallel Shape"
-    },
-    {
-      name: "A Parallel Shaped Kitchen In Ebony And Light Grey",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 119199,
-      originalPrice: null,
-      kitchenType: "Parallel Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen Finished In Natural Teak With Frosted Glass Shutters",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 113899,
-      originalPrice: 119874,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In Wood Texture And Frosted Glass",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 113599,
-      originalPrice: 119499,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In Dark Walnut And Frosty White Laminates",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 110399,
-      originalPrice: 116124,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In Cream And Ebony Laminates",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 107199,
-      originalPrice: 112749,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In Natural Teak Wood Finish",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 105399,
-      originalPrice: 110874,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In Mango Yellow And Frosty White",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 102799,
-      originalPrice: 108124,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "A Parallel-Shaped Kitchen In Dark Walnut And Cream Coloured Laminates",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 102599,
-      originalPrice: 107999,
-      kitchenType: "Parallel Shape"
-    },
-    {
-      name: "A Parallel Shaped Kitchen In A Pine Wood Finish Paired With Frosted Glass",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 101899,
-      originalPrice: 114398,
-      kitchenType: "Parallel Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In Light Grey And Rose Red",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 100399,
-      originalPrice: 105624,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "A Parallel Shaped Kitchen In Berry And Frosty White",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 99399,
-      originalPrice: 104624,
-      kitchenType: "Parallel Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In A Light Grey Laminate",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 96899,
-      originalPrice: 108798,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In Ebony Or Dark Wood Laminate",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 94999,
-      originalPrice: 106665,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "A Light Grey L-Shaped Kitchen",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 92399,
-      originalPrice: 97124,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In A Grey Linen Textured Finish",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 90799,
-      originalPrice: 95499,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "A Berry Coloured L-Shaped Kitchen With Frosted Glass Shutters",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 89799,
-      originalPrice: 94499,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "A Parallel Shaped Kitchen Finished In Ebony Or Dark Wood",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 88399,
-      originalPrice: 92999,
-      kitchenType: "Parallel Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In Cream Coloured Laminate",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 81699,
-      originalPrice: 85999,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "A Straight Kitchen Finished With Forest Green Coloured Laminate",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 80699,
-      originalPrice: 84874,
-      kitchenType: "Straight Shape"
-    },
-    {
-      name: "A Straight Kitchen Finished In Dark Walnut Coloured Laminate",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 79999,
-      originalPrice: 84249,
-      kitchenType: "Straight Shape"
-    },
-    {
-      name: "An L-Shaped Kitchen In Brown Teak Finish Laminate",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 73399,
-      originalPrice: 77249,
-      kitchenType: "L Shape"
-    },
-    {
-      name: "A Straight Kitchen Finished With Natural Teak and Rose Red Laminate",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 67999,
-      originalPrice: 71624,
-      kitchenType: "Straight Shape"
-    },
-    {
-      name: "A Straight Kitchen Finished With Pine Wood And Frosted Glass Shutters",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 62699,
-      originalPrice: 65874,
-      kitchenType: "Straight Shape"
-    },
-    {
-      name: "A Straight Kitchen In Mango Yellow and Light Grey Coloured Laminate",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 59399,
-      originalPrice: 62499,
-      kitchenType: "Straight Shape"
-    }
-  ];
-
-  // Filter kitchen packages based on configuration
-  const filteredKitchenPackages = allKitchenPackages.filter(pkg => {
-    const kitchenMatch = !kitchenConfig.kitchenType || pkg.kitchenType === kitchenConfig.kitchenType;
-    return kitchenMatch;
+  // Filtered list (client-side filters beyond layout)
+  const filteredKitchenPackages = kitchenProducts.filter(pkg => {
+    const materialMatch = !kitchenConfig.material || pkg.defaultMaterials?.some(m => m.material === kitchenConfig.material);
+    const suitableForMatch = !kitchenConfig.suitableFor || pkg.kitchenMetadata?.suitableFor?.includes(kitchenConfig.suitableFor);
+    const styleMatch = !kitchenConfig.style || pkg.kitchenMetadata?.style?.includes(kitchenConfig.style);
+    const colorMatch = !kitchenConfig.colorScheme || pkg.kitchenMetadata?.colorScheme?.includes(kitchenConfig.colorScheme);
+    const budgetMatch = (!kitchenConfig.budgetMin || pkg.basePrice >= parseFloat(kitchenConfig.budgetMin)) && (!kitchenConfig.budgetMax || pkg.basePrice <= parseFloat(kitchenConfig.budgetMax));
+    return materialMatch && suitableForMatch && styleMatch && colorMatch && budgetMatch;
   });
 
   return (
@@ -295,7 +148,7 @@ export default function KitchenCollectionPage() {
                         {['L Shape', 'Parallel Shape', 'Straight Shape'].map((type) => (
                           <button
                             key={type}
-                            className={`w-full p-2 rounded-md border text-left text-gray-700 transition-all duration-200 ${
+                            className={`w-full cursor-pointer p-2 rounded-md border text-left text-gray-700 transition-all duration-200 ${
                               kitchenConfig.kitchenType === type
                                 ? 'border-orange-600 bg-orange-100 text-orange-900'
                                 : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50'
@@ -316,8 +169,17 @@ export default function KitchenCollectionPage() {
 
                   <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-orange-200">
                     <button 
-                      onClick={() => setKitchenConfig({kitchenType: '', layout: '', material: ''})}
-                      className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                      onClick={() => setKitchenConfig({
+                        kitchenType: '', 
+                        layout: '', 
+                        material: '', 
+                        suitableFor: '', 
+                        style: '', 
+                        colorScheme: '', 
+                        budgetMin: '', 
+                        budgetMax: ''
+                      })}
+                      className="flex items-center cursor-pointer justify-center gap-1 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -326,7 +188,7 @@ export default function KitchenCollectionPage() {
                     </button>
                     <button 
                       onClick={() => setShowDesignSession(true)}
-                      className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 py-2 rounded-md text-sm font-semibold shadow-lg transition-all duration-200"
+                      className="bg-gradient-to-r cursor-pointer from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 py-2 rounded-md text-sm font-semibold shadow-lg transition-all duration-200"
                     >
                       Book Consultation
                     </button>
@@ -336,11 +198,32 @@ export default function KitchenCollectionPage() {
 
               {/* Product Listings */}
               <div className="flex-1">
-                {filteredKitchenPackages.length > 0 ? (
+                {loading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="w-6 h-6 animate-spin text-orange-600" />
+                      <span className="text-gray-600">Loading kitchen products...</span>
+                    </div>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                      <ChefHat className="w-10 h-10 text-red-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to load products</h3>
+                    <p className="text-gray-600 mb-4">{error}</p>
+                    <button 
+                      onClick={fetchKitchenProducts}
+                      className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                ) : filteredKitchenPackages.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {filteredKitchenPackages.map((kitchen, index) => (
-                      <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                        <div className="h-48 bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url("${kitchen.image}")`}}>
+                      <div key={kitchen._id || index} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                        <div className="h-48 bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url("${kitchen.mainImages?.[0] || kitchen.image}")`}}>
                           <div className="h-full bg-opacity-20 flex items-end">
                             <div className="p-3 text-white">
                               <p className="text-sm font-medium line-clamp-2">{kitchen.name}</p>
@@ -348,20 +231,41 @@ export default function KitchenCollectionPage() {
                           </div>
                         </div>
                         <div className="p-4">
-                          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm">{kitchen.name}</h3>
+                          
+                          {/* Kitchen Details */}
+                          <div className="space-y-1 mb-3">
+                            {kitchen.defaultLayout && (
+                              <div className="text-xs text-gray-600">
+                                Layout: {kitchen.defaultLayout.name}
+                              </div>
+                            )}
+                            {kitchen.defaultMaterials && kitchen.defaultMaterials.length > 0 && (
+                              <div className="text-xs text-gray-600">
+                                Materials: {kitchen.defaultMaterials.map(m => m.material).join(', ')}
+                              </div>
+                            )}
+                            {kitchen.kitchenMetadata?.suitableFor && (
+                              <div className="text-xs text-gray-600">
+                                Suitable for: {kitchen.kitchenMetadata.suitableFor.join(', ')}
+                              </div>
+                            )}
+                          </div>
+                          
                           <div className="flex items-center gap-2 mb-3">
                             <span className="text-xs text-gray-500">*Excluding applicable taxes</span>
                           </div>
                           <div className="flex items-center gap-2 mb-3">
-                            <span className="text-lg font-bold text-gray-900">₹ {kitchen.price.toLocaleString()}</span>
-                            {kitchen.originalPrice && (
-                              <span className="text-sm text-gray-500 line-through">₹ {kitchen.originalPrice.toLocaleString()}</span>
+                            <span className="text-lg font-bold text-gray-900">₹ {(kitchen.basePrice || kitchen.price).toLocaleString()}</span>
+                            {(kitchen.mrp || kitchen.originalPrice) && (
+                              <span className="text-sm text-gray-500 line-through">₹ {(kitchen.mrp || kitchen.originalPrice).toLocaleString()}</span>
                             )}
                           </div>
-                          <div className="text-xs text-gray-600 mb-3">Delivery in 15 days*</div>
+                          <div className="text-xs text-gray-600 mb-3">
+                            {kitchen.kitchenMetadata?.deliveryTime || 'Delivery in 15 days*'}
+                          </div>
                           <button 
                             onClick={() => setShowDesignSession(true)}
-                            className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 text-sm"
+                            className="w-full bg-gradient-to-r cursor-pointer from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 text-sm"
                           >
                             Book Consultation
                           </button>
@@ -377,7 +281,16 @@ export default function KitchenCollectionPage() {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">No kitchens found</h3>
                     <p className="text-gray-600 mb-4">Try adjusting your filters to see more options</p>
                     <button 
-                      onClick={() => setKitchenConfig({kitchenType: '', layout: '', material: ''})}
+                      onClick={() => setKitchenConfig({
+                        kitchenType: '', 
+                        layout: '', 
+                        material: '', 
+                        suitableFor: '', 
+                        style: '', 
+                        colorScheme: '', 
+                        budgetMin: '', 
+                        budgetMax: ''
+                      })}
                       className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200"
                     >
                       Clear all filters

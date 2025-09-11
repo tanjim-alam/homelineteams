@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Home, Calculator, Palette, Ruler, 
@@ -25,6 +25,25 @@ export default function WardrobesPage() {
     homeType: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [wardrobeProducts, setWardrobeProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchWardrobes();
+  }, []);
+
+  const fetchWardrobes = async () => {
+    try {
+      setLoading(true);
+      const res = await api.request('/api/wardrobe-products');
+      setWardrobeProducts(Array.isArray(res) ? res : []);
+    } catch (e) {
+      console.error('Failed to load wardrobes', e);
+      setError('Failed to load wardrobes');
+      setWardrobeProducts(allWardrobes);
+    } finally { setLoading(false); }
+  };
 
   const handleLeadSubmit = async () => {
     if (!leadForm.name || !leadForm.phone || !leadForm.homeType) {
@@ -58,124 +77,14 @@ export default function WardrobesPage() {
     }
   };
 
-  // Sample wardrobe data based on Qarpentri's offerings
-  const allWardrobes = [
-    {
-      name: "2 Door Sliding Wardrobe With Ebony Finish",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 42599,
-      originalPrice: 44874,
-      size: "4' x 2' x 7'",
-      type: "Sliding",
-      doors: "2 Door"
-    },
-    {
-      name: "2 Door Sliding Wardrobe With Rose Red and Grey Linen Laminate",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 49399,
-      originalPrice: 51999,
-      size: "5' x 2' x 7'",
-      type: "Sliding",
-      doors: "2 Door"
-    },
-    {
-      name: "2 Door Sliding Wardrobe With Forest Green and Brown Teak Finish",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 57699,
-      originalPrice: 60749,
-      size: "5'6\" x 2' x 7'",
-      type: "Sliding",
-      doors: "2 Door"
-    },
-    {
-      name: "A 2-Door Wardrobe Finished In Berry Laminate",
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 27599,
-      originalPrice: 28999,
-      size: "3' x 2' x 7'",
-      type: "Swinging",
-      doors: "2 Door"
-    },
-    {
-      name: "A 2-Door Wardrobe Finished In Brown Teak Laminate",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 28099,
-      originalPrice: 28999,
-      size: "3' x 2' x 7'",
-      type: "Swinging",
-      doors: "2 Door"
-    },
-    {
-      name: "A 2-Door Wardrobe In A Light Grey Finish",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 28399,
-      originalPrice: 29874,
-      size: "3'6\" x 2' x 7'",
-      type: "Swinging",
-      doors: "2 Door"
-    },
-    {
-      name: "A 2-Door Wardrobe Finished In Ebony Laminate",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 29899,
-      originalPrice: 31499,
-      size: "3' x 2' x 7'",
-      type: "Swinging",
-      doors: "2 Door"
-    },
-    {
-      name: "A 2-Door Wardrobe In A Frosty White Finish",
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 39099,
-      originalPrice: 41124,
-      size: "4' x 2' x 7'",
-      type: "Swinging",
-      doors: "2 Door"
-    },
-    {
-      name: "A 3-Door Wardrobe Finished With Ebony And Cream Coloured Laminate",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 48099,
-      originalPrice: 50624,
-      size: "6' x 2' x 7'",
-      type: "Swinging",
-      doors: "3 Door"
-    },
-    {
-      name: "A 3-Door Wardrobe In Brown Teak Laminate",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 48499,
-      originalPrice: 50999,
-      size: "6' x 2' x 7'",
-      type: "Swinging",
-      doors: "3 Door"
-    },
-    {
-      name: "A 4-Door Wardrobe In A Berry Coloured Laminate",
-      image: "https://images.unsplash.com/photo-1556909114-1184ffa95b32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 59399,
-      originalPrice: 62499,
-      size: "8' x 2' x 7'",
-      type: "Swinging",
-      doors: "4 Door"
-    },
-    {
-      name: "A 5-Door Wardrobe In Grey Linen And Brown Teak Laminate",
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      price: 72899,
-      originalPrice: 76749,
-      size: "10' x 2' x 7'",
-      type: "Swinging",
-      doors: "5 Door"
-    }
-  ];
-
   // Filter wardrobes based on configuration
-  const filteredWardrobes = allWardrobes.filter(wardrobe => {
-    const typeMatch = !wardrobeConfig.type || wardrobe.type === wardrobeConfig.type;
-    const doorsMatch = !wardrobeConfig.doors || wardrobe.doors === wardrobeConfig.doors;
+  const filteredWardrobes = wardrobeProducts.filter(wardrobe => {
+    const typeMatch = !wardrobeConfig.type || wardrobe.defaultOpening?.toLowerCase() === wardrobeConfig.type.toLowerCase() || wardrobe.defaultType?.toLowerCase().includes(wardrobeConfig.type.toLowerCase()) || wardrobe.type === wardrobeConfig.type;
+    const doorsMatch = !wardrobeConfig.doors || wardrobe.defaultType?.toLowerCase().includes(wardrobeConfig.doors.split(' ')[0].toLowerCase()) || wardrobe.doors === wardrobeConfig.doors;
     return typeMatch && doorsMatch;
   });
+
+  console.log(filteredWardrobes);
 
   return (
     <>
@@ -190,7 +99,7 @@ export default function WardrobesPage() {
         <div className="py-16 bg-white">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Wardrobes (42)</h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Wardrobes ({filteredWardrobes?.length})</h2>
               <p className="text-lg text-gray-600">Find your perfect wardrobe solution</p>
             </div>
 
@@ -264,7 +173,7 @@ export default function WardrobesPage() {
                   <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-blue-200">
                     <button 
                       onClick={() => setWardrobeConfig({type: '', doors: ''})}
-                      className="flex items-center justify-center gap-1 px-3 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                      className="flex items-center cursor-pointer justify-center gap-1 px-3 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -273,7 +182,7 @@ export default function WardrobesPage() {
                     </button>
                     <button 
                       onClick={() => setShowDesignSession(true)}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-3 py-2 rounded-md text-xs font-semibold shadow-lg transition-all duration-200"
+                      className="bg-gradient-to-r from-blue-600 cursor-pointer to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-3 py-2 rounded-md text-xs font-semibold shadow-lg transition-all duration-200"
                     >
                       Book Consultation
                     </button>
@@ -283,35 +192,47 @@ export default function WardrobesPage() {
 
               {/* Product Listings */}
               <div className="flex-1">
-                {filteredWardrobes.length > 0 ? (
+                {loading ? (
+                  <div className="flex items-center justify-center py-16 text-gray-600">Loading wardrobes...</div>
+                ) : error ? (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Shirt className="w-10 h-10 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to load wardrobes</h3>
+                    <p className="text-gray-600 mb-4">{error}</p>
+                    <button onClick={fetchWardrobes} className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">Try Again</button>
+                  </div>
+                ) : filteredWardrobes.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {filteredWardrobes.map((wardrobe, index) => (
                       <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                        <div className="h-48 bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url("${wardrobe.image}")`}}>
-                          <div className="h-full bg-black bg-opacity-20 flex items-end">
+                        <div className="h-48 bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url("${wardrobe.mainImages?.[0] || wardrobe.image}")`}}>
+                          <div className="h-full bg-opacity-20 flex items-end">
                             <div className="p-3 text-white">
                               <p className="text-sm font-medium line-clamp-2">{wardrobe.name}</p>
                             </div>
                           </div>
                         </div>
                         <div className="p-4">
-                          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm">{wardrobe.name}</h3>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs text-gray-600">Size: {wardrobe.size}</span>
-                          </div>
+                          {wardrobe.defaultType && (
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-xs text-gray-600">Type: {wardrobe.defaultType}</span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-2 mb-3">
                             <span className="text-xs text-gray-500">*Excluding applicable taxes</span>
                           </div>
                           <div className="flex items-center gap-2 mb-3">
-                            <span className="text-lg font-bold text-gray-900">₹ {wardrobe.price.toLocaleString()}</span>
-                            {wardrobe.originalPrice && (
-                              <span className="text-sm text-gray-500 line-through">₹ {wardrobe.originalPrice.toLocaleString()}</span>
+                            <span className="text-lg font-bold text-gray-900">₹ {(wardrobe.basePrice || wardrobe.price).toLocaleString()}</span>
+                            {(wardrobe.mrp || wardrobe.originalPrice) && (
+                              <span className="text-sm text-gray-500 line-through">₹ {(wardrobe.mrp || wardrobe.originalPrice).toLocaleString()}</span>
                             )}
                           </div>
                           <div className="text-xs text-gray-600 mb-3">Delivery in 15 days*</div>
                           <button 
                             onClick={() => setShowDesignSession(true)}
-                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 text-sm"
+                            className="w-full bg-gradient-to-r cursor-pointer from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 text-sm"
                           >
                             Book Consultation
                           </button>
